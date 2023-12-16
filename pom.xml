@@ -103,16 +103,18 @@
 					<version>3.3.0</version>
 					<configuration>
 						<configLocation>checkstyle.xml</configLocation>
-						<failOnViolation>true</failOnViolation>
-						<logViolationsToConsole>true</logViolationsToConsole>
 						<includeTestSourceDirectory>true</includeTestSourceDirectory>
+						<consoleOutput>true</consoleOutput>
+						<failsOnError>true</failsOnError>
+						<linkXRef>false</linkXRef>
 					</configuration>
 					<executions>
 						<execution>
+							<id>validate</id>
+							<phase>validate</phase>
 							<goals>
 								<goal>check</goal>
 							</goals>
-							<phase>compile</phase>
 						</execution>
 					</executions>
 				</plugin>
