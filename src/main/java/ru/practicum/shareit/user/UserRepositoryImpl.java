@@ -1,12 +1,14 @@
 package ru.practicum.shareit.user;
 
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.exception.EntityNotFoundException;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
 
 @Component
-public class UserRepositoryImpl implements UserRepository{
+public class UserRepositoryImpl implements UserRepository {
 
     private final Map<Integer, User> users = new HashMap<>();
 
@@ -28,8 +30,10 @@ public class UserRepositoryImpl implements UserRepository{
     }
 
     @Override
-    public Optional<User> findUserById(int userId) {
-        return Optional.of(users.get(userId));
+    public User findUserById(int userId) {
+//        return Optional.ofNullable(users.get(userId));
+        return Optional.ofNullable(users.get(userId))
+                .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
     }
 
     @Override

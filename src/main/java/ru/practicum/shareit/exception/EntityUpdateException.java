@@ -1,8 +1,8 @@
 package ru.practicum.shareit.exception;
 
-public class ValidationBadRequestException extends RuntimeException {
+public class EntityUpdateException extends RuntimeException {
 
-    public ValidationBadRequestException(String message) {
+    public EntityUpdateException(String message) {
         super(message);
     }
 

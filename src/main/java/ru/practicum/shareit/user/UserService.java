@@ -2,13 +2,11 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ValidationBadRequestException;
 import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
-
 import java.util.List;
 
 @Slf4j
@@ -26,8 +24,9 @@ public class UserService {
 
     public User getUser(int userId) {
         log.debug("Заправшиваем пользователя с id: {}", userId);
-        return userRepository.findUserById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
+        return userRepository.findUserById(userId);
+//        return userRepository.findUserById(userId)
+//                .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
     }
 
     public User createUser(User user) {
@@ -38,18 +37,17 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User putUser(User user) {
+    public User putUser(int userId, User user) {
         log.debug("Обновляем пользователя {}", user);
-        int userId = user.getId();
-        User updateUser = userRepository.findUserById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
+        User updateUser = userRepository.findUserById(userId);
+//        User updateUser = userRepository.findUserById(userId)
+//                .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
         if (isUniqueEmail(user)) {
             throw new ValidationBadRequestException("Объект уже существует: " + user.getEmail());
         }
         updateUser.setName(user.getName());
         updateUser.setEmail(user.getEmail());
-        userRepository.update(updateUser);
-        return updateUser;
+        return userRepository.update(updateUser);
     }
 
     public void deleteUserById(int userId) {
@@ -60,10 +58,10 @@ public class UserService {
 
     public Boolean isUniqueEmail(User user) {
         String email = user.getEmail();
-        int userId = user.getId();
+//        int userId = user.getId();
         boolean checkEmail = false;
         for (User userCheck : userRepository.findAll()) {
-            if (userCheck.getEmail().equals(email) && (userCheck.getId() != userId)) {
+            if (userCheck.getEmail().equals(email)) {
                 checkEmail = true;
                 break;
             }
