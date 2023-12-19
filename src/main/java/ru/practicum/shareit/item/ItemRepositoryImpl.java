@@ -11,8 +11,8 @@ public class ItemRepositoryImpl implements ItemRepository{
     private final Map<Integer, List<Item>> items = new HashMap<>();
 
     @Override
-    public Optional<List<Item>> findByUserId(int userId) {
-        return Optional.of(items.getOrDefault(userId, Collections.emptyList()));
+    public List<Item> findByUserId(int userId) {
+        return items.getOrDefault(userId, Collections.emptyList());
     }
 
     @Override
@@ -40,6 +40,15 @@ public class ItemRepositoryImpl implements ItemRepository{
     @Override
     public void deleteByUserId(int userId) {
         items.remove(userId);
+    }
+
+    @Override
+    public Optional<Item> findByItem(int itemId) {
+        return items.entrySet()
+                .stream()
+                .flatMap(entry -> entry.getValue().stream())
+                .filter(item -> item.getId() == itemId)
+                .findFirst();
     }
 
     private int getId() {

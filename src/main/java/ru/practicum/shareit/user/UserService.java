@@ -53,6 +53,7 @@ public class UserService {
     }
 
     public void deleteUserById(int userId) {
+        log.debug("Удаляем пользовател c id: {}", userId);
         userRepository.delete(userId);
         itemRepository.deleteByUserId(userId);
     }
@@ -69,5 +70,4 @@ public class UserService {
         }
         return checkEmail;
     }
-
 }

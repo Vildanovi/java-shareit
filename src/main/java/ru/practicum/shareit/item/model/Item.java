@@ -16,10 +16,11 @@ import javax.validation.constraints.Size;
 public class Item {
     private int id;
     @Size(max = 20)
+    @NotBlank(message = "Вещь не может быть без названия")
     private String name; // краткое название
     @Size(max = 500)
     private String description; // развёрнутое описание
-    private int available; // статус о том, доступна или нет вещь для аренды
+    private String available; // статус о том, доступна или нет вещь для аренды
     @NotBlank(message = "Вещь не может быть без владельца")
     private int owner; // владелец вещи
     // если вещь была создана по запросу другого пользователя,

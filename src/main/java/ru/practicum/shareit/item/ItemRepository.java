@@ -7,8 +7,9 @@ import java.util.Optional;
 
 public interface ItemRepository {
 
-    Optional<List<Item>> findByUserId(int userId);
+    List<Item> findByUserId(int userId);
     Item save(Item item);
     void deleteByUserIdAndItemId(int userId, int ItemId);
     void deleteByUserId(int userId);
+    Optional<Item> findByItem(int itemId);
 }
