@@ -5,10 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.UserMapper;
-
 import javax.validation.Valid;
 import java.util.List;
 
@@ -19,14 +16,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+@Validated
 public class UserController {
-    private final UserService userService;
 
+    private final UserService userService;
 
     @GetMapping()
     @Operation(summary = "Получить всех пользователей")
     public List<User> getAllUsers() {
-        return getAllUsers();
+        return userService.getAllUsers();
     }
 
     @GetMapping("/{userId}")
@@ -37,7 +35,7 @@ public class UserController {
 
     @PostMapping()
     @Operation(summary = "Добавление пользователя")
-    public User postUser(@RequestBody User user) {
+    public User postUser(@Valid @RequestBody User user) {
         log.debug("Получен POST запрос на добавление пользователя");
         return userService.createUser(user);
     }
@@ -45,9 +43,13 @@ public class UserController {
     @PatchMapping("/{userId}")
     @Operation(summary = "Обновление пользователя")
     public User putUser(@PathVariable (value = "userId") int userId,
-                           @RequestBody User user) {
+                        @RequestBody User user) {
         return userService.putUser(userId, user);
     }
 
-
+    @DeleteMapping("/{userId}")
+    @Operation(summary = "Удаление пользователя")
+    public void deleteUser(@PathVariable (value = "userId") int userId) {
+        userService.deleteUserById(userId);
+    }
 }

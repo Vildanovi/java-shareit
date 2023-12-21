@@ -9,6 +9,7 @@ import ru.practicum.shareit.user.UserRepository;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -19,7 +20,6 @@ public class ItemService {
     private final UserRepository userRepository;
 
     public List<Item> getItemsByUserId(int userId) {
-        log.debug("Получаем список вещей для пользователя c id: {}", userId);
         userRepository.findUserById(userId);
 //        userRepository.findUserById(userId)
 //                .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
@@ -27,15 +27,24 @@ public class ItemService {
     }
 
     public Item getItemByUserIdItemId(int userId, int itemId) {
-        log.debug("Ищем вещь с id: {} для пользователя с id: {}", itemId, userId);
-        return itemRepository.findByUserId(userId).stream()
-                .filter(item -> item.getId() == itemId)
+        userRepository.findUserById(userId);
+//        return Optional.ofNullable(itemRepository.findByUserId(userId).get(itemId))
+//                .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + itemId));
+
+
+        List<Item> items = itemRepository.findByUserId(userId);
+        return items.stream()
+                .filter((i) -> (i.getId() == itemId))
                 .findFirst()
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + itemId));
+
+//        return itemRepository.findByUserId(userId).stream()
+//                .filter(item -> item.getId() == itemId)
+//                .findAny()
+//                .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + itemId));
     }
 
     public List<Item> searchByText(int userId, String query) {
-        log.debug("Ищем текст: {} для пользователя с id: {}", query, userId);
         if (query.isEmpty() || query.isBlank()) {
             return Collections.emptyList();
         } else {
@@ -44,7 +53,6 @@ public class ItemService {
     }
 
     public Item createItem(int userId, Item item) {
-        log.debug("Создаем вещь {} для пользователя с id: {}", item, userId);
         userRepository.findUserById(userId);
 //        userRepository.findUserById(userId)
 //                .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
@@ -53,36 +61,46 @@ public class ItemService {
     }
 
     public Item putItem(int itemId, int userId, Item item) {
-        log.debug("Обновляем вещь c id: {} для пользователя с id: {}", itemId, userId);
-        Item updateItem = itemRepository.findByItem(itemId)
-                .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + itemId));
-        userRepository.findUserById(userId);
+        Item updateItem = getItemByUserIdItemId(userId, itemId);
+//        Item updateItem = itemRepository.findByItem(itemId)
+//                .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + itemId));
 //        userRepository.findUserById(userId)
 //                .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
         String name = item.getName();
         String description = item.getDescription();
-        String available = item.getAvailable();
-        if (!name.isEmpty()) {
+        Boolean available = item.getAvailable();
+        if (name != null) {
             updateItem.setName(name);
         }
-        if (!description.isEmpty()) {
+        if (description != null) {
             updateItem.setDescription(description);
         }
-        if (available.equals("true") || available.equals("false")) {
+        if (available != null) {
             updateItem.setAvailable(available);
         }
         List<Item> userItems = itemRepository.findByUserId(userId);
-        userItems.stream()
-                .filter(i -> i.getId() == itemId)
-                .findFirst().ifPresent(userItem -> userItems.set(userItems.indexOf(userItem), updateItem));
+        Item currentItem = itemRepository.findByUserId(userId).stream()
+                .filter(item1 -> item1.getId() == itemId)
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + itemId));
+        if (currentItem != null) {
+            userItems.set(userItems.indexOf(currentItem), updateItem);
+        }
+//        userItems.stream()
+//                .filter(i -> i.getId() == itemId)
+//                .findFirst()
+//                .ifPresent(userItem -> userItems.set(userItems.indexOf(userItem), updateItem));
         return updateItem;
     }
 
     public Item deleteItem(int itemId) {
-        log.debug("Удаляем вещь с id: {}", itemId);
         Item deleteItem = itemRepository.findByItem(itemId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + itemId));
         itemRepository.deleteByUserIdAndItemId(deleteItem.getOwner(), itemId);
         return deleteItem;
     }
+
+//    private Boolean isValidCreatedItem(Item item) {
+//
+//    }
 }

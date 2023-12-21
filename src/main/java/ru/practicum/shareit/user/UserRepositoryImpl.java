@@ -2,19 +2,21 @@ package ru.practicum.shareit.user;
 
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.EntityNotFoundException;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
-
 import java.util.*;
 
 @Component
 public class UserRepositoryImpl implements UserRepository {
 
     private final Map<Integer, User> users = new HashMap<>();
+    protected int generatedId = 0;
 
     @Override
     public List<User> findAll() {
-        return new ArrayList<>(users.values());
+        if (!users.isEmpty()) {
+            return new ArrayList<>(users.values());
+        }
+        return Collections.emptyList();
     }
 
     @Override
@@ -48,11 +50,14 @@ public class UserRepositoryImpl implements UserRepository {
         return updateUser;
     }
 
-    private Integer getId() {
-        int lastId = users.values().stream()
-                .mapToInt(User::getId)
-                .max()
-                .orElse(0);
-        return lastId + 1;
+    private int getId() {
+        return ++generatedId;
     }
+//    private Integer getId() {
+//        int lastId = users.values().stream()
+//                .mapToInt(User::getId)
+//                .max()
+//                .orElse(0);
+//        return lastId + 1;
+//    }
 }

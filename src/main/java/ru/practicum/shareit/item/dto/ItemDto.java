@@ -16,7 +16,7 @@ public class ItemDto {
     private String name; // краткое название
     @Size(max = 500)
     private String description; // развёрнутое описание
-    private String available; // статус о том, доступна или нет вещь для аренды
+    private Boolean available; // статус о том, доступна или нет вещь для аренды
     // если вещь была создана по запросу другого пользователя,
     // то в этом поле будет храниться ссылка на соответствующий запрос
 }
