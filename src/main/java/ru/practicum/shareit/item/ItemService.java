@@ -6,10 +6,9 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
-
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+
 
 @Slf4j
 @Service
