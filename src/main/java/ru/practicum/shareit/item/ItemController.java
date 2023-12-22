@@ -9,9 +9,6 @@ import ru.practicum.shareit.item.model.Item;
 import javax.validation.Valid;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Slf4j
 @RestController
 @RequestMapping("/items")
@@ -29,18 +26,16 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     @Operation(summary = "Получить вещи по идентификатору")
-    public Item getItem(@RequestHeader("X-Sharer-User-Id") int userId,
-                        @PathVariable ("itemId") int itemId) {
-        log.debug("Получаем вещь с id: {} для пользователя с id: {}", itemId, userId);
-        return itemService.getItemByUserIdItemId(userId, itemId);
+    public Item getItem(@PathVariable ("itemId") int itemId) {
+        log.debug("Получаем вещь с id: {}", itemId);
+        return itemService.getItemById(itemId);
     }
 
     @GetMapping("/search")
     @Operation(summary = "Поиск вещей пользователя по наименованию и описанию")
-    public List<Item> searchItems(@RequestHeader("X-Sharer-User-Id") int userId,
-                                  @RequestParam (value = "text") String query) {
-        log.debug("Ищем текст: {} для пользователя с id: {}", query, userId);
-        return itemService.searchByText(userId, query);
+    public List<Item> searchItems(@RequestParam (value = "text") String query) {
+        log.debug("Ищем текст: {}", query);
+        return itemService.searchByText(query);
     }
 
     @PostMapping

@@ -4,10 +4,6 @@ import lombok.Builder;
 import lombok.Data;
 import javax.validation.constraints.Size;
 
-/**
- * TODO Sprint add-controllers.
- */
-
 @Data
 @Builder
 public class ItemDto {
