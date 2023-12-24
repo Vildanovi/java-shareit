@@ -1,21 +1,22 @@
 package ru.practicum.shareit.user.dto;
 
 import lombok.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import org.hibernate.sql.Update;
+import org.springframework.data.annotation.CreatedBy;
+import javax.validation.constraints.*;
 
 @AllArgsConstructor
 @Builder
 @Getter
 @Setter
 public class UserDto {
+
     private int id;
-    @Size(max = 20)
+    @Size(groups = {CreatedBy.class}, max = 20)
     @Pattern(regexp = "[\\S]{0,}", message = "Имя не должно содержать пробелы")
+    @NotEmpty(groups = {CreatedBy.class})
     private String name; // имя или логин пользователя
-    @NotBlank(message = "email не может быть пустым")
-    @Email(message = "Некорректный email")
+    @NotEmpty(groups = {CreatedBy.class}, message = "email не может быть пустым")
+    @Email(groups = {CreatedBy.class, Update.class}, message = "Некорректный email")
     private String email;
 }

@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 @Component
 public class ItemRepositoryImpl implements ItemRepository {
     private final Map<Integer, Map<Integer, Item>> itemsStorage = new HashMap<>();
+    private final Map<Integer, Item> items = new HashMap<>();
+
     protected int generatedId = 0;
 
     @Override
@@ -18,25 +20,31 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public Item findByItem(int itemId) {
-        return itemsStorage.values()
-                .stream()
-                .flatMap(map -> map.values().stream())
-                .collect(Collectors.toList())
-                .stream()
-                .filter(item -> item.getId() == itemId)
-                .findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + itemId));
+        if (items.containsKey(itemId)) {
+            return items.get(itemId);
+        } else {
+            throw new EntityNotFoundException("Объект не найден: " + itemId);
+        }
+//        return itemsStorage.values()
+//                .stream()
+//                .flatMap(map -> map.values().stream())
+//                .collect(Collectors.toList())
+//                .stream()
+//                .filter(item -> item.getId() == itemId)
+//                .findFirst()
+//                .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + itemId));
     }
 
     @Override
     public List<Item> searchItemsByUserId(String query) {
+        String searchQuery = query.toLowerCase(Locale.ROOT);
         return itemsStorage.values()
                 .stream()
                 .flatMap(map -> map.values().stream())
                 .collect(Collectors.toList())
                 .stream()
-                .filter(i -> i.getName().toLowerCase(Locale.ROOT).contains(query.toLowerCase(Locale.ROOT))
-                        || i.getDescription().toLowerCase(Locale.ROOT).contains(query.toLowerCase(Locale.ROOT)))
+                .filter(i -> i.getName().toLowerCase(Locale.ROOT).contains(searchQuery)
+                        || i.getDescription().toLowerCase(Locale.ROOT).contains(searchQuery))
                 .filter(Item::getAvailable)
                 .collect(Collectors.toList());
     }
@@ -44,20 +52,23 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public Item updateItem(int userId, int itemId, Item item) {
         Item updateItem = findByItem(itemId);
+        Item updateItems = items.get(itemId);
         if (updateItem.getOwner() == userId) {
             String name = item.getName();
             String description = item.getDescription();
             Boolean available = item.getAvailable();
-            if (name != null) {
+            if (name != null && !name.isBlank()) {
                 updateItem.setName(name);
+                updateItems.setName(name);
             }
-            if (description != null) {
+            if (description != null && !description.isBlank()) {
                 updateItem.setDescription(description);
+                updateItems.setDescription(description);
             }
             if (available != null) {
                 updateItem.setAvailable(available);
+                updateItems.setAvailable(available);
             }
-            itemsStorage.get(userId).put(itemId, updateItem);
             return updateItem;
         } else {
             throw new EntityNotFoundException("Объект не найден: " + itemId);
@@ -70,8 +81,10 @@ public class ItemRepositoryImpl implements ItemRepository {
             if (userItems == null) {
                 userItems = new HashMap<>();
             }
-            item.setId(getId());
-            userItems.put(item.getId(), item);
+            int itemId = getId();
+            item.setId(itemId);
+            userItems.put(itemId, item);
+            items.put(itemId, item);
             return userItems;
         });
         return item;
@@ -81,12 +94,16 @@ public class ItemRepositoryImpl implements ItemRepository {
     public void deleteByUserIdAndItemId(int userId, int itemId) {
         if (itemsStorage.containsKey(userId)) {
             itemsStorage.get(userId).remove(itemId);
+            items.remove(itemId);
         }
     }
 
     @Override
     public void deleteByUserId(int userId) {
-        itemsStorage.remove(userId);
+        Map<Integer, Item> deleteMap = itemsStorage.remove(userId);
+        if (deleteMap != null) {
+            deleteMap.forEach((k, v) -> items.remove(k));
+        }
     }
 
     private int getId() {

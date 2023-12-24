@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import java.util.Collections;
@@ -17,7 +18,8 @@ public class ItemService {
     private final UserRepository userRepository;
 
     public List<Item> getItemsByUserId(int userId) {
-        userRepository.findUserById(userId);
+        userRepository.findUserById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
         return itemRepository.findByUserId(userId);
     }
 
@@ -26,7 +28,7 @@ public class ItemService {
     }
 
     public List<Item> searchByText(String query) {
-        if (query.isEmpty() || query.isBlank()) {
+        if (query == null || query.isBlank()) {
             return Collections.emptyList();
         } else {
             return itemRepository.searchItemsByUserId(query);
@@ -34,7 +36,8 @@ public class ItemService {
     }
 
     public Item createItem(int userId, Item item) {
-        userRepository.findUserById(userId);
+        userRepository.findUserById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
         item.setOwner(userId);
         return itemRepository.save(item);
     }
