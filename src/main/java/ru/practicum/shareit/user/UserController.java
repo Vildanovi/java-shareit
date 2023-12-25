@@ -4,12 +4,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserResponseDto;
 import ru.practicum.shareit.user.model.User;
-import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,7 +47,7 @@ public class UserController {
     @PatchMapping("/{userId}")
     @Operation(summary = "Обновление пользователя")
     public UserResponseDto putUser(@PathVariable (value = "userId") int userId,
-                        @Valid @RequestBody UserDto userDto) {
+                        @Validated(LastModifiedBy.class) @RequestBody UserDto userDto) {
         User user = UserMapper.toUser(userDto);
         return UserMapper.userResponseDto(userService.putUser(userId, user));
     }

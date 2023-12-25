@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -60,7 +61,7 @@ public class ItemController {
     @Operation(summary = "Обновление параметров вещи")
     public ItemResponseDto putItem(@PathVariable (value = "itemId") int itemId,
                         @RequestHeader(Constants.USER_ID) int userId,
-                        @RequestBody ItemDto itemDto) {
+                        @Validated(LastModifiedBy.class) @RequestBody ItemDto itemDto) {
         log.debug("Обновляем вещь c id: {} для пользователя с id: {}", itemId, userId);
         Item item = ItemMapper.toItem(itemDto);
         return ItemMapper.itemResponseDto(itemService.putItem(itemId, userId, item));

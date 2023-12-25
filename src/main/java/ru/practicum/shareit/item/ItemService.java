@@ -28,7 +28,7 @@ public class ItemService {
     }
 
     public List<Item> searchByText(String query) {
-        if (query == null || query.isBlank()) {
+        if (query.isBlank()) {
             return Collections.emptyList();
         } else {
             return itemRepository.searchItemsByUserId(query);

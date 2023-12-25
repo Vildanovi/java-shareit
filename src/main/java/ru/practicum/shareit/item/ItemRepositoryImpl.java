@@ -25,50 +25,35 @@ public class ItemRepositoryImpl implements ItemRepository {
         } else {
             throw new EntityNotFoundException("Объект не найден: " + itemId);
         }
-//        return itemsStorage.values()
-//                .stream()
-//                .flatMap(map -> map.values().stream())
-//                .collect(Collectors.toList())
-//                .stream()
-//                .filter(item -> item.getId() == itemId)
-//                .findFirst()
-//                .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + itemId));
     }
 
     @Override
     public List<Item> searchItemsByUserId(String query) {
         String searchQuery = query.toLowerCase(Locale.ROOT);
-        return itemsStorage.values()
-                .stream()
-                .flatMap(map -> map.values().stream())
-                .collect(Collectors.toList())
+        return items.values()
                 .stream()
                 .filter(i -> i.getName().toLowerCase(Locale.ROOT).contains(searchQuery)
-                        || i.getDescription().toLowerCase(Locale.ROOT).contains(searchQuery))
-                .filter(Item::getAvailable)
+                        || i.getDescription().toLowerCase(Locale.ROOT).contains(searchQuery) && i.getAvailable())
                 .collect(Collectors.toList());
     }
 
     @Override
     public Item updateItem(int userId, int itemId, Item item) {
         Item updateItem = findByItem(itemId);
-        Item updateItems = items.get(itemId);
         if (updateItem.getOwner() == userId) {
             String name = item.getName();
             String description = item.getDescription();
             Boolean available = item.getAvailable();
             if (name != null && !name.isBlank()) {
                 updateItem.setName(name);
-                updateItems.setName(name);
             }
             if (description != null && !description.isBlank()) {
                 updateItem.setDescription(description);
-                updateItems.setDescription(description);
             }
             if (available != null) {
                 updateItem.setAvailable(available);
-                updateItems.setAvailable(available);
             }
+            itemsStorage.get(userId).put(itemId, updateItem);
             return updateItem;
         } else {
             throw new EntityNotFoundException("Объект не найден: " + itemId);

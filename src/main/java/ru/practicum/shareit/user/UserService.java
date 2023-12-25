@@ -53,7 +53,7 @@ public class UserService {
         if (email != null && !email.isBlank()) {
             updateUser.setEmail(email);
         }
-        return userRepository.update(updateUser);
+        return updateUser;
     }
 
     public void deleteUserById(int userId) {

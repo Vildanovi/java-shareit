@@ -12,10 +12,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> findAll() {
-        if (!users.isEmpty()) {
-            return new ArrayList<>(users.values());
-        }
-        return Collections.emptyList();
+        return new ArrayList<>(users.values());
     }
 
     @Override
