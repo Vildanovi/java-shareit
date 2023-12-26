@@ -20,8 +20,4 @@ public class ItemDto {
     private String description; // развёрнутое описание
     @NotNull(groups = {CreatedBy.class}, message = "Вещь не может быть статуса доступности")
     private Boolean available; // статус о том, доступна или нет вещь для аренды
-//    private int owner; // владелец вещи
-    // если вещь была создана по запросу другого пользователя,
-    // то в этом поле будет храниться ссылка на соответствующий запрос
-//    private ItemRequest request;
 }

@@ -53,7 +53,6 @@ public class ItemRepositoryImpl implements ItemRepository {
             if (available != null) {
                 updateItem.setAvailable(available);
             }
-            itemsStorage.get(userId).put(itemId, updateItem);
             return updateItem;
         } else {
             throw new EntityNotFoundException("Объект не найден: " + itemId);

@@ -13,7 +13,7 @@ import javax.validation.constraints.*;
 public class UserDto {
 
     private int id;
-    @Size(groups = {CreatedBy.class}, max = 20)
+    @Size(groups = {CreatedBy.class, LastModifiedBy.class}, max = 20)
     @Pattern(groups = {CreatedBy.class, LastModifiedBy.class}, regexp = "[\\S]{0,}", message = "Имя не должно содержать пробелы")
     @NotEmpty(groups = {CreatedBy.class})
     private String name; // имя или логин пользователя
