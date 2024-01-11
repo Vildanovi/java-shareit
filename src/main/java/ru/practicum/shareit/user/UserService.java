@@ -7,6 +7,8 @@ import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.EntityUpdateException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
+
 import java.util.List;
 
 @Slf4j
@@ -24,16 +26,16 @@ public class UserService {
 
     public User getUser(int userId) {
         log.debug("Заправшиваем пользователя с id: {}", userId);
-        return userRepository.findUserById(userId)
+        return userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
     }
 
     public User createUser(User user) {
         log.debug("Создаем пользователя {}", user);
         String email = user.getEmail();
-        if (isUniqueEmail(user)) {
-            throw new EntityUpdateException("Объект уже существует: " + email);
-        }
+//        if (isUniqueEmail(user)) {
+//            throw new EntityUpdateException("Объект уже существует: " + email);
+//        }
         return userRepository.save(user);
     }
 
@@ -41,7 +43,7 @@ public class UserService {
         log.debug("Обновляем пользователя {}", user);
         String name = user.getName();
         String email = user.getEmail();
-        User updateUser = userRepository.findUserById(userId)
+        User updateUser = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
         user.setId(userId);
         if (isUniqueEmail(user)) {
@@ -53,12 +55,12 @@ public class UserService {
         if (email != null && !email.isBlank()) {
             updateUser.setEmail(email);
         }
-        return updateUser;
+        return userRepository.save(updateUser);
     }
 
     public void deleteUserById(int userId) {
         log.debug("Удаляем пользовател c id: {}", userId);
-        userRepository.delete(userId);
+        userRepository.deleteById(userId);
         itemRepository.deleteByUserId(userId);
     }
 
