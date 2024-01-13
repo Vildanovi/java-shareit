@@ -13,11 +13,16 @@ import javax.validation.constraints.*;
 public class UserDto {
 
     private int id;
-    @Size(groups = {CreatedBy.class, LastModifiedBy.class}, max = 20)
-    @Pattern(groups = {CreatedBy.class, LastModifiedBy.class}, regexp = "[\\S]{0,}", message = "Имя не должно содержать пробелы")
-    @NotEmpty(groups = {CreatedBy.class})
+    @Size(groups = {CreatedBy.class, LastModifiedBy.class}, max = 20,
+            message = "Имя пользователя не более 20 символов")
+    @Pattern(groups = {CreatedBy.class, LastModifiedBy.class}, regexp = "[\\S]{0,}",
+            message = "Имя не должно содержать пробелы")
+    @NotEmpty(groups = {CreatedBy.class},
+            message = "Имя не должно быть пустым")
     private String name; // имя или логин пользователя
-    @NotEmpty(groups = {CreatedBy.class}, message = "email не может быть пустым")
-    @Email(groups = {CreatedBy.class, LastModifiedBy.class}, message = "Некорректный email")
+    @NotEmpty(groups = {CreatedBy.class},
+            message = "Email не может быть пустым")
+    @Email(groups = {CreatedBy.class, LastModifiedBy.class},
+            message = "Некорректный email")
     private String email;
 }

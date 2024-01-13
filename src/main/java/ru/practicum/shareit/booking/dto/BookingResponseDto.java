@@ -15,7 +15,7 @@ public class BookingResponseDto {
     private int id;
     private LocalDateTime start; // дата и время начала бронирования
     private LocalDateTime end; // дата и время конца бронирования
-    private int item; // вещь, которую пользователь бронирует
-    private int booker; // пользователь, который осуществляет бронирование
+    private Item item; // вещь, которую пользователь бронирует
+    private User booker; // пользователь, который осуществляет бронирование
     private BookingStatus status; // статус бронирования
 }

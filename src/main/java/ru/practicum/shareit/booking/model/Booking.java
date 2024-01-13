@@ -25,13 +25,13 @@ public class Booking {
     @Column(name = "end_date")
     private LocalDateTime end; // дата и время конца бронирования
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
 //    @JoinColumn(name = "item_id")
 //    @ToString.Exclude
 //    @Column(name = "item_id")
     private Item item; // вещь, которую пользователь бронирует
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
 //    @JoinColumn(name = "booker_id")
 //    @ToString.Exclude
 //    @Column(name = "booker_id")
