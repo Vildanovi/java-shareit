@@ -1,11 +1,11 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.EntityUpdateException;
-import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -32,7 +32,7 @@ public class UserService {
 
     public User createUser(User user) {
         log.debug("Создаем пользователя {}", user);
-        String email = user.getEmail();
+//        String email = user.getEmail();
 //        if (isUniqueEmail(user)) {
 //            throw new EntityUpdateException("Объект уже существует: " + email);
 //        }
@@ -61,7 +61,7 @@ public class UserService {
     public void deleteUserById(int userId) {
         log.debug("Удаляем пользовател c id: {}", userId);
         userRepository.deleteById(userId);
-        itemRepository.deleteByUserId(userId);
+//        itemRepository.deleteById(userId);
     }
 
     public Boolean isUniqueEmail(User user) {
