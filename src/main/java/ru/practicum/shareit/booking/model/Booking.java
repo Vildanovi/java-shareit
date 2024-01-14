@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode
 public class Booking {
 
     @Id
@@ -26,13 +27,13 @@ public class Booking {
     private LocalDateTime end; // дата и время конца бронирования
 
     @ManyToOne(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "item_id")
+    @JoinColumn(name = "item_id")
 //    @ToString.Exclude
 //    @Column(name = "item_id")
     private Item item; // вещь, которую пользователь бронирует
 
     @ManyToOne(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "booker_id")
+    @JoinColumn(name = "booker_id")
 //    @ToString.Exclude
 //    @Column(name = "booker_id")
     private User booker; // пользователь, который осуществляет бронирование

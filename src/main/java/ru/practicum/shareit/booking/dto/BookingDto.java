@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking.dto;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import ru.practicum.shareit.booking.enumerations.BookingStatus;
 
@@ -10,20 +9,19 @@ import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
-/**
- * TODO Sprint add-bookings.
- */
-
-@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
+@Getter
+@Setter
 public class BookingDto {
-    @NotNull(message = "Бронирование не может быть без идентификатора")
+//    @NotNull(message = "Бронирование не может быть без идентификатора")
     private int id;
     @NotNull(groups = {CreatedBy.class}, message = "Бронирование не может быть без даты начала")
-    @FutureOrPresent
+    @FutureOrPresent(groups = {CreatedBy.class}, message = "Дата начала бронирования не может быть в прошлом")
     private LocalDateTime start; // дата и время начала бронирования
     @NotNull(groups = {CreatedBy.class}, message = "Бронирование не может быть без даты конца")
-    @Future
+    @Future(groups = {CreatedBy.class}, message = "Дата завершения бронирования не может быть в прошлом")
     private LocalDateTime end; // дата и время конца бронирования
     private int itemId; // вещь, которую пользователь бронирует
     private int bookerId; // пользователь, который осуществляет бронирование
