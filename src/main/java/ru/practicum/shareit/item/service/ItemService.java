@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.constant.Constants;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.item.model.Item;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemService {
 
     private final ItemRepository itemRepository;
@@ -42,6 +44,7 @@ public class ItemService {
         }
     }
 
+    @Transactional
     public Item createItem(int userId, Item item) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
@@ -49,6 +52,7 @@ public class ItemService {
         return itemRepository.save(item);
     }
 
+    @Transactional
     public Item putItem(int itemId, int userId, Item item) {
         Item updateItem = itemRepository.findById(itemId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + itemId));
@@ -71,6 +75,7 @@ public class ItemService {
         }
     }
 
+    @Transactional
     public Item deleteItem(int itemId) {
         Item deleteItem = itemRepository.findById(itemId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + itemId));

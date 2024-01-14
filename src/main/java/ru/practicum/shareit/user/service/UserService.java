@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.EntityUpdateException;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -14,6 +15,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository userRepository;
@@ -30,6 +32,7 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
     }
 
+    @Transactional
     public User createUser(User user) {
         log.debug("Создаем пользователя {}", user);
 //        String email = user.getEmail();
@@ -39,6 +42,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional
     public User putUser(int userId, User user) {
         log.debug("Обновляем пользователя {}", user);
         String name = user.getName();
@@ -58,6 +62,7 @@ public class UserService {
         return userRepository.save(updateUser);
     }
 
+    @Transactional
     public void deleteUserById(int userId) {
         log.debug("Удаляем пользовател c id: {}", userId);
         userRepository.deleteById(userId);

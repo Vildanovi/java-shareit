@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking.service;
 import lombok.RequiredArgsConstructor;
 import org.apache.bcel.generic.SWITCH;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingNewDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
@@ -18,13 +19,13 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
@@ -42,6 +43,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public Booking create(BookingNewDto bookingNewDto, int userId) {
         Item item = itemRepository.findById(bookingNewDto.getItemId())
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + bookingNewDto.getItemId()));
@@ -65,11 +67,76 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getAllBookingByOwner(int ownerId) {
-        return bookingRepository.findAllByItem_Owner(ownerId);
+    public List<Booking> getAllBookingByOwner(int ownerId, String state) {
+        BookingState bookingState;
+        try {
+            bookingState = BookingState.valueOf(state);
+        } catch (RuntimeException e) {
+            throw new ValidationBadRequestException("Unknown state: UNSUPPORTED_STATUS");
+        }
+        userRepository.findById(ownerId)
+                .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + ownerId));
+        List<Booking> bookings;
+        switch (bookingState) {
+            case ALL:
+                bookings = bookingRepository.findAllByItem_Owner(ownerId);
+                break;
+            case REJECTED:
+                bookings = bookingRepository.findAllByItem_OwnerAndStatus(ownerId, BookingStatus.REJECTED);
+                break;
+            case WAITING:
+                bookings = bookingRepository.findAllByItem_OwnerAndStatus(ownerId, BookingStatus.WAITING);
+                break;
+            case PAST:
+                bookings = bookingRepository.findAllByItem_OwnerAndEndIsBefore(ownerId, LocalDateTime.now());
+            case FUTURE:
+                bookings = bookingRepository.findAllByItem_OwnerAndStartAfter(ownerId, LocalDateTime.now());
+                break;
+            case CURRENT:
+                bookings = bookingRepository.findAllByItem_OwnerAndEndIsAfter(ownerId, LocalDateTime.now());
+                break;
+            default:
+                throw new ValidationBadRequestException("Unknown state: UNSUPPORTED_STATUS");
+        }
+        return bookings;
     }
 
     @Override
+    public List<Booking> getAllBookingByUser(int userId,String state) {
+        BookingState bookingState;
+        try {
+            bookingState = BookingState.valueOf(state);
+        } catch (RuntimeException e) {
+            throw new ValidationBadRequestException("Unknown state: UNSUPPORTED_STATUS");
+        }
+        userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
+        List<Booking> bookings = new ArrayList<>();
+        switch (bookingState) {
+            case ALL:
+                bookings = bookingRepository.findAllByBooker_Id(userId);
+                break;
+            case REJECTED:
+                bookings = bookingRepository.findAllByBooker_IdAndStatus(userId, BookingStatus.REJECTED);
+                break;
+            case WAITING:
+                bookings = bookingRepository.findAllByBooker_IdAndStatus(userId, BookingStatus.WAITING);
+                break;
+            case PAST:
+                bookings = bookingRepository.findAllByBooker_IdAndEndIsBefore(userId, LocalDateTime.now());
+            case FUTURE:
+                bookings = bookingRepository.findAllByBooker_IdAndStartAfter(userId, LocalDateTime.now());
+                break;
+            case CURRENT:
+                bookings = bookingRepository.findAllByBooker_IdAndEndIsAfter(userId, LocalDateTime.now());
+                break;
+        }
+        return bookings;
+
+    }
+
+    @Override
+    @Transactional
     public Booking approved(int bookingId, int ownerId, boolean approved) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + bookingId));
@@ -88,32 +155,7 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.save(booking);
     }
 
-    @Override
-    public List<Booking> getAllBookingByUser(int userId, String state) {
-        BookingState requestState = BookingState.valueOf(state);
-        List<Booking> bookings = new ArrayList<>();
-        switch (requestState) {
-            case ALL:
-                bookings = bookingRepository.findAllByBookerId(userId);
-                break;
-            case REJECTED:
-                bookings = bookingRepository.findAllByBooker_IdAndStatus(userId, BookingStatus.REJECTED);
-                break;
-            case WAITING:
-                bookings = bookingRepository.findAllByBooker_IdAndStatus(userId, BookingStatus.WAITING);
-                break;
-            case PAST:
-                bookings = bookingRepository.findAllByBooker_IdAndEndBefore(userId, LocalDateTime.now());
-            case FUTURE:
-                bookings = bookingRepository.findAllByBooker_IdAndStartAfter(userId, LocalDateTime.now());
-                break;
-            case CURRENT:
-                bookings = bookingRepository.findAllByBooker_IdAndEndIsAfter(userId, LocalDateTime.now());
-                break;
-        }
-        return bookings;
 
-    }
 
 
 }

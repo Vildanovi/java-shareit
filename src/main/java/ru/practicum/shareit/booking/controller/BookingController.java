@@ -7,6 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingNewDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
+import ru.practicum.shareit.booking.enumerations.BookingState;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.constant.Constants;
@@ -37,8 +38,9 @@ public class BookingController {
 
     @GetMapping("/owner")
     @Operation(summary = "Получить все бронирования владельца")
-    public List<BookingResponseDto> getAllByOwner(@RequestHeader(Constants.USER_ID) int userId) {
-        return bookingService.getAllBookingByOwner(userId).stream()
+    public List<BookingResponseDto> getAllByOwner(@RequestParam(value = "state", defaultValue = "ALL") String state,
+                                                  @RequestHeader(Constants.USER_ID) int userId) {
+        return bookingService.getAllBookingByOwner(userId, state).stream()
                 .map(BookingMapper::mapBookingToResponseDto)
                 .collect(Collectors.toList());
         //Добавить State

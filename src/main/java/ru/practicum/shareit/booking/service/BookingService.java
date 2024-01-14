@@ -14,7 +14,7 @@ public interface BookingService {
 
     Booking create(BookingNewDto bookingNewDto, int userId);
 
-    List<Booking> getAllBookingByOwner(int ownerId);
+    List<Booking> getAllBookingByOwner(int ownerId, String state);
 
     Booking approved(int bookingId, int ownerId, boolean approved);
 

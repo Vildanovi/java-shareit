@@ -33,7 +33,7 @@ public class Booking {
     private Item item; // вещь, которую пользователь бронирует
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "booker_id")
+//    @JoinColumn(name = "booker_id")
 //    @ToString.Exclude
 //    @Column(name = "booker_id")
     private User booker; // пользователь, который осуществляет бронирование
