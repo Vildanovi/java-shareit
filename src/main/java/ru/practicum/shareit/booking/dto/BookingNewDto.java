@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Setter
 public class BookingNewDto {
     @NotNull(groups = {CreatedBy.class}, message = "Бронирование не может быть без идентификатора вещи")
-    private int ItemId;
+    private int itemId;
     @NotNull(groups = {CreatedBy.class}, message = "Бронирование не может быть без даты начала")
     @FutureOrPresent(groups = {CreatedBy.class}, message = "Дата начала бронирования не может быть в прошлом")
     private LocalDateTime start;

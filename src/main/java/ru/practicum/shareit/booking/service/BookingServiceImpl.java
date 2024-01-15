@@ -32,7 +32,7 @@ public class BookingServiceImpl implements BookingService {
     public Booking getBookingById(int bookingId, int userId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + bookingId));
-        if(booking.getBooker().getId() != userId && booking.getItem().getOwner() != userId) {
+        if (booking.getBooker().getId() != userId && booking.getItem().getOwner() != userId) {
             throw new EntityNotFoundException("Недоступно так как пользователь не владельц или забронировавший: " + userId);
         }
         return booking;
@@ -45,15 +45,15 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + bookingNewDto.getItemId()));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
-        if(!item.getAvailable()) {
+        if (!item.getAvailable()) {
             throw new ValidationBadRequestException("Объект в данный момент не доступен: " + item.getId());
         }
         LocalDateTime start = bookingNewDto.getStart();
         LocalDateTime end = bookingNewDto.getEnd();
-        if(end.isBefore(start) || end.isEqual(start)) {
+        if (end.isBefore(start) || end.isEqual(start)) {
             throw new ValidationBadRequestException("Дата завершения брони не может быть раньше начала");
         }
-        if(item.getOwner() == userId) {
+        if (item.getOwner() == userId) {
             throw new EntityNotFoundException("Объект не может забронировать владелец: " + userId);
         }
         Booking booking = BookingMapper.mapNewBookingToBooking(bookingNewDto, item, user);
@@ -139,14 +139,14 @@ public class BookingServiceImpl implements BookingService {
     public Booking approved(int bookingId, int ownerId, boolean approved) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + bookingId));
-        if(booking.getItem().getOwner() != ownerId) {
+        if (booking.getItem().getOwner() != ownerId) {
             throw new EntityNotFoundException("Подтверджающий бронирование не является владельцем: " + ownerId);
         }
         BookingStatus status = booking.getStatus();
-        if(status.equals(BookingStatus.APPROVED) || status.equals(BookingStatus.REJECTED)) {
+        if (status.equals(BookingStatus.APPROVED) || status.equals(BookingStatus.REJECTED)) {
             throw new ValidationBadRequestException("Бронированию уже установлен статус подиверждения: " + status);
         }
-        if(approved) {
+        if (approved) {
             booking.setStatus(BookingStatus.APPROVED);
         } else {
             booking.setStatus(BookingStatus.REJECTED);

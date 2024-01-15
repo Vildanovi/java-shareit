@@ -49,13 +49,13 @@ public class ItemService {
                 .map(BookingMapper::mapBookingToBookingForItem)
                 .collect(Collectors.toList());
         List<ItemResponseWithBookingDto> itemsWithBookings = new ArrayList<>();
-        for(ItemResponseWithBookingDto item : items) {
+        for (ItemResponseWithBookingDto item : items) {
             LocalDateTime currentDateTime = LocalDateTime.now();
             Set<BookingForItemDto> lastBooking = new TreeSet<>(Comparator.comparing(BookingForItemDto::getEnd));
             Set<BookingForItemDto> nextBooking = new TreeSet<>(Comparator.comparing(BookingForItemDto::getStart));
-            for(BookingForItemDto booking : bookings) {
-                if(item.getId() == booking.getItemId()) {
-                    if(booking.getStart().isBefore(currentDateTime)) {
+            for (BookingForItemDto booking : bookings) {
+                if (item.getId() == booking.getItemId()) {
+                    if (booking.getStart().isBefore(currentDateTime)) {
                         lastBooking.add(booking);
                     } else {
                         nextBooking.add(booking);
@@ -89,14 +89,14 @@ public class ItemService {
 
         ItemResponseWithBookingDto itemWithBooking = ItemMapper.mapItemToResponseWithBooking(item);
 
-        if(lastBooking3 != null) {
+        if (lastBooking3 != null) {
             itemWithBooking.setLastBooking(BookingMapper.mapBookingToBookingForItem(lastBooking3));
         }
-        if(nextBooking != null && nextBooking.getStatus() != BookingStatus.REJECTED) {
+        if (nextBooking != null && nextBooking.getStatus() != BookingStatus.REJECTED) {
             itemWithBooking.setNextBooking(BookingMapper.mapBookingToBookingForItem(nextBooking));
         }
 
-        if(!itemComments.isEmpty()) {
+        if (!itemComments.isEmpty()) {
             itemWithBooking.setComments(itemComments
                     .stream()
                     .map(CommentMapper::mapCommentToCommentForItem)
@@ -167,7 +167,7 @@ public class ItemService {
                 .stream()
                 .findFirst()
                 .orElse(null);
-        if(bookingFinish == null) {
+        if (bookingFinish == null) {
             throw new ValidationBadRequestException("Нет завершенных бронирований");
         }
         comment.setItem(item);
