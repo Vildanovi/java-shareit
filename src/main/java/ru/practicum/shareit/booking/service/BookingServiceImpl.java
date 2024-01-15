@@ -21,11 +21,13 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+//@Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
@@ -43,7 +45,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional
+//    @Transactional
     public Booking create(BookingNewDto bookingNewDto, int userId) {
         Item item = itemRepository.findById(bookingNewDto.getItemId())
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + bookingNewDto.getItemId()));
@@ -69,6 +71,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<Booking> getAllBookingByOwner(int ownerId, String state) {
         BookingState bookingState;
+        LocalDateTime currentDateTime = LocalDateTime.now();
         try {
             bookingState = BookingState.valueOf(state);
         } catch (RuntimeException e) {
@@ -79,21 +82,23 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings;
         switch (bookingState) {
             case ALL:
-                bookings = bookingRepository.findAllByItem_Owner(ownerId);
+                bookings = bookingRepository.findAllByItem_OwnerOrderByStartDesc(ownerId);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findAllByItem_OwnerAndStatus(ownerId, BookingStatus.REJECTED);
+                bookings = bookingRepository.findAllByItem_OwnerAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED);
                 break;
             case WAITING:
-                bookings = bookingRepository.findAllByItem_OwnerAndStatus(ownerId, BookingStatus.WAITING);
+                bookings = bookingRepository.findAllByItem_OwnerAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING);
                 break;
             case PAST:
-                bookings = bookingRepository.findAllByItem_OwnerAndEndIsBefore(ownerId, LocalDateTime.now());
+                bookings = bookingRepository.findAllByItem_OwnerAndEndIsBeforeOrderByStartDesc(ownerId, currentDateTime);
+                break;
             case FUTURE:
-                bookings = bookingRepository.findAllByItem_OwnerAndStartAfter(ownerId, LocalDateTime.now());
+                bookings = bookingRepository.findAllByItem_OwnerAndStartAfterOrderByStartDesc(ownerId, currentDateTime);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findAllByItem_OwnerAndEndIsAfter(ownerId, LocalDateTime.now());
+//                bookings = bookingRepository.findAllByItem_OwnerAndEndIsAfterOrderByStartDesc(ownerId, currentDateTime);
+                bookings = bookingRepository.findAllByItem_OwnerAndStartIsBeforeAndEndIsAfterOrderByStartDesc(ownerId, currentDateTime, currentDateTime);
                 break;
             default:
                 throw new ValidationBadRequestException("Unknown state: UNSUPPORTED_STATUS");
@@ -112,23 +117,29 @@ public class BookingServiceImpl implements BookingService {
         userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
         List<Booking> bookings = new ArrayList<>();
+        LocalDateTime currentDateTime = LocalDateTime.now();
         switch (bookingState) {
             case ALL:
-                bookings = bookingRepository.findAllByBooker_Id(userId);
+//                bookings = bookingRepository.findAll().stream()
+//                        .filter(booking -> booking.getBooker().getId() == userId)
+//                        .collect(Collectors.toList());
+                bookings = bookingRepository.findAllByBooker_IdOrderByStartDesc(userId);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findAllByBooker_IdAndStatus(userId, BookingStatus.REJECTED);
+                bookings = bookingRepository.findAllByBooker_IdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
                 break;
             case WAITING:
-                bookings = bookingRepository.findAllByBooker_IdAndStatus(userId, BookingStatus.WAITING);
+                bookings = bookingRepository.findAllByBooker_IdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
                 break;
             case PAST:
-                bookings = bookingRepository.findAllByBooker_IdAndEndIsBefore(userId, LocalDateTime.now());
+                bookings = bookingRepository.findAllByBooker_IdAndEndIsBeforeOrderByStartDesc(userId, currentDateTime);
+                break;
             case FUTURE:
-                bookings = bookingRepository.findAllByBooker_IdAndStartAfter(userId, LocalDateTime.now());
+                bookings = bookingRepository.findAllByBooker_IdAndStartAfterOrderByStartDesc(userId, currentDateTime);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findAllByBooker_IdAndEndIsAfter(userId, LocalDateTime.now());
+//                bookings = bookingRepository.findAllByBooker_IdAndEndIsAfterOrderByStartDesc(userId, currentDateTime);
+                bookings = bookingRepository.findAllByBooker_IdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId, currentDateTime, currentDateTime);
                 break;
         }
         return bookings;
@@ -136,7 +147,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional
+//    @Transactional
     public Booking approved(int bookingId, int ownerId, boolean approved) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + bookingId));
@@ -154,8 +165,4 @@ public class BookingServiceImpl implements BookingService {
         }
         return bookingRepository.save(booking);
     }
-
-
-
-
 }

@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking.mapper;
 import lombok.experimental.UtilityClass;
 import org.mapstruct.control.MappingControl;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingForItemDto;
 import ru.practicum.shareit.booking.dto.BookingNewDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.enumerations.BookingStatus;
@@ -22,12 +23,25 @@ public class BookingMapper {
         return booking;
     }
 
-    public static BookingDto mapNewBookingToBookingDto(BookingNewDto bookingNewDto) {
+    public static BookingDto mapBookingToBookingDto(Booking booking) {
         BookingDto bookingDto = new BookingDto();
         bookingDto.setItemId(bookingDto.getItemId());
         bookingDto.setStart(bookingDto.getStart());
         bookingDto.setEnd(bookingDto.getEnd());
+        bookingDto.setItemId(booking.getItem().getId());
+        bookingDto.setBookerId(booking.getBooker().getId());
+        bookingDto.setStatus(booking.getStatus());
         return bookingDto;
+    }
+
+    public static BookingForItemDto mapBookingToBookingForItem(Booking booking) {
+        BookingForItemDto bookingForItemDto = new BookingForItemDto();
+        bookingForItemDto.setId(booking.getId());
+        bookingForItemDto.setStart(booking.getStart());
+        bookingForItemDto.setEnd(booking.getEnd());
+        bookingForItemDto.setItemId(booking.getItem().getId());
+        bookingForItemDto.setBookerId(booking.getBooker().getId());
+        return bookingForItemDto;
     }
 
     public static Booking mapNewBookingToBooking(BookingNewDto bookingNewDto, Item item, User user) {

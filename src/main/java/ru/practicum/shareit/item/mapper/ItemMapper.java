@@ -1,8 +1,12 @@
 package ru.practicum.shareit.item.mapper;
 
 import lombok.experimental.UtilityClass;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingForItemDto;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
+import ru.practicum.shareit.item.dto.ItemResponseWithBookingDto;
 import ru.practicum.shareit.item.model.Item;
 
 @UtilityClass
@@ -28,6 +32,15 @@ public class ItemMapper {
 
     public ItemResponseDto itemResponseDto(Item item) {
         return ItemResponseDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable())
+                .build();
+    }
+
+    public ItemResponseWithBookingDto mapItemToResponseWithBooking(Item item) {
+        return ItemResponseWithBookingDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())

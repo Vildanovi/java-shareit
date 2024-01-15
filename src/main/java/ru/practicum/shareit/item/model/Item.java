@@ -1,10 +1,6 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.*;
-import org.mapstruct.ap.internal.model.GeneratedType;
-import ru.practicum.shareit.request.ItemRequest;
-import ru.practicum.shareit.user.model.User;
-
 import javax.persistence.*;
 
 @Data

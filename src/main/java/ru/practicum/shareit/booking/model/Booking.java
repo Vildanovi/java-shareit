@@ -27,7 +27,7 @@ public class Booking {
     private LocalDateTime end; // дата и время конца бронирования
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "item_id")
+//    @JoinColumn(name = "item_id")
 //    @ToString.Exclude
 //    @Column(name = "item_id")
     private Item item; // вещь, которую пользователь бронирует
