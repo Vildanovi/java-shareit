@@ -9,13 +9,12 @@ import ru.practicum.shareit.exception.EntityUpdateException;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
-
 import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-//@Transactional(readOnly = true)
+@Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository userRepository;
@@ -32,17 +31,13 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
     }
 
-//    @Transactional
+    @Transactional
     public User createUser(User user) {
         log.debug("Создаем пользователя {}", user);
-//        String email = user.getEmail();
-//        if (isUniqueEmail(user)) {
-//            throw new EntityUpdateException("Объект уже существует: " + email);
-//        }
         return userRepository.save(user);
     }
 
-//    @Transactional
+    @Transactional
     public User putUser(int userId, User user) {
         log.debug("Обновляем пользователя {}", user);
         String name = user.getName();
@@ -62,11 +57,10 @@ public class UserService {
         return userRepository.save(updateUser);
     }
 
-//    @Transactional
+    @Transactional
     public void deleteUserById(int userId) {
         log.debug("Удаляем пользовател c id: {}", userId);
         userRepository.deleteById(userId);
-//        itemRepository.deleteById(userId);
     }
 
     public Boolean isUniqueEmail(User user) {

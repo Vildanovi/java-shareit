@@ -3,7 +3,6 @@ package ru.practicum.shareit.user.dto;
 import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
-
 import javax.validation.constraints.*;
 
 @AllArgsConstructor

@@ -2,7 +2,6 @@ package ru.practicum.shareit.booking.dto;
 
 import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
-
 import javax.validation.constraints.Future;
 import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotNull;

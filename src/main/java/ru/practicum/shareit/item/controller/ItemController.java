@@ -34,10 +34,6 @@ public class ItemController {
     @Operation(summary = "Получить список вещей пользователя")
     public List<ItemResponseWithBookingDto> getUserItems(@RequestHeader(Constants.USER_ID) int userId) {
         log.debug("Получаем список вещей для пользователя c id: {}", userId);
-//        return itemService.getItemsByUserId(userId)
-//                .stream()
-//                .map(ItemMapper::itemResponseDto)
-//                .collect(Collectors.toList());
         return itemService.getItemsWithBookingByUserId(userId);
     }
 

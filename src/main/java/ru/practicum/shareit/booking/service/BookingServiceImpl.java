@@ -1,12 +1,9 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.bcel.generic.SWITCH;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingNewDto;
-import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.enumerations.BookingState;
 import ru.practicum.shareit.booking.enumerations.BookingStatus;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -14,20 +11,17 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ValidationBadRequestException;
-import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-//@Transactional(readOnly = true)
+@Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
@@ -45,7 +39,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-//    @Transactional
+    @Transactional
     public Booking create(BookingNewDto bookingNewDto, int userId) {
         Item item = itemRepository.findById(bookingNewDto.getItemId())
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + bookingNewDto.getItemId()));
@@ -97,7 +91,6 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findAllByItem_OwnerAndStartAfterOrderByStartDesc(ownerId, currentDateTime);
                 break;
             case CURRENT:
-//                bookings = bookingRepository.findAllByItem_OwnerAndEndIsAfterOrderByStartDesc(ownerId, currentDateTime);
                 bookings = bookingRepository.findAllByItem_OwnerAndStartIsBeforeAndEndIsAfterOrderByStartDesc(ownerId, currentDateTime, currentDateTime);
                 break;
             default:
@@ -120,9 +113,6 @@ public class BookingServiceImpl implements BookingService {
         LocalDateTime currentDateTime = LocalDateTime.now();
         switch (bookingState) {
             case ALL:
-//                bookings = bookingRepository.findAll().stream()
-//                        .filter(booking -> booking.getBooker().getId() == userId)
-//                        .collect(Collectors.toList());
                 bookings = bookingRepository.findAllByBooker_IdOrderByStartDesc(userId);
                 break;
             case REJECTED:
@@ -138,16 +128,14 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findAllByBooker_IdAndStartAfterOrderByStartDesc(userId, currentDateTime);
                 break;
             case CURRENT:
-//                bookings = bookingRepository.findAllByBooker_IdAndEndIsAfterOrderByStartDesc(userId, currentDateTime);
                 bookings = bookingRepository.findAllByBooker_IdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId, currentDateTime, currentDateTime);
                 break;
         }
         return bookings;
-
     }
 
     @Override
-//    @Transactional
+    @Transactional
     public Booking approved(int bookingId, int ownerId, boolean approved) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + bookingId));

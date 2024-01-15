@@ -10,7 +10,6 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.ValidationBadRequestException;
-import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.repository.CommentRepository;
@@ -21,7 +20,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -30,22 +28,13 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-//@Transactional(readOnly = true)
+@Transactional(readOnly = true)
 public class ItemService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
-
-    public List<Item> getItemsByUserId(int userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
-        return itemRepository.findAll()
-                .stream()
-                .filter(item -> item.getOwner() == userId)
-                .collect(Collectors.toList());
-    }
 
     public List<ItemResponseWithBookingDto> getItemsWithBookingByUserId(int userId) {
         userRepository.findById(userId)
@@ -87,16 +76,10 @@ public class ItemService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + itemId));
 
-        Booking lastBooking = bookingRepository.findAllByItem_IdAndEndIsBeforeOrderByEndDesc(itemId, LocalDateTime.now())
+        Booking lastBooking3 = bookingRepository.findAllByItem_OwnerAndStartIsBeforeOrderByEndDesc(userId, LocalDateTime.now())
                 .stream()
+                .filter(booking -> booking.getStatus() != BookingStatus.REJECTED)
                 .findFirst().orElse(null);
-//        List<Booking> lastBooking = bookingRepository
-//                .findAllByItem_OwnerAndBooker_IdAndEndIsBeforeOrderByEndDesc(itemId, userId, LocalDateTime.now());
-
-
-//        Booking nextBooking = bookingRepository.findAllByItem_IdAndStartIsAfterOrderByStartAsc(itemId, LocalDateTime.now())
-//                .stream()
-//                .findFirst().orElse(null);
 
         Booking nextBooking = bookingRepository.findAllByItem_IdAndItem_OwnerAndStartIsAfterOrderByStartAsc(itemId, userId, LocalDateTime.now())
                 .stream()
@@ -106,25 +89,13 @@ public class ItemService {
 
         ItemResponseWithBookingDto itemWithBooking = ItemMapper.mapItemToResponseWithBooking(item);
 
-        if(lastBooking != null) {
-            itemWithBooking.setLastBooking(BookingMapper.mapBookingToBookingForItem(lastBooking));
+        if(lastBooking3 != null) {
+            itemWithBooking.setLastBooking(BookingMapper.mapBookingToBookingForItem(lastBooking3));
         }
         if(nextBooking != null && nextBooking.getStatus() != BookingStatus.REJECTED) {
             itemWithBooking.setNextBooking(BookingMapper.mapBookingToBookingForItem(nextBooking));
         }
-//        if(lastBooking == null && nextBooking != null) {
-//            itemWithBooking.setLastBooking(BookingMapper.mapBookingToBookingForItem(nextBooking));
-//        }
-//        if(nextBooking == null && lastBooking != null) {
-//            itemWithBooking.setNextBooking(BookingMapper.mapBookingToBookingForItem(lastBooking));
-//        }
-//        if(nextBooking != null) {
-//            itemWithBooking.setNextBooking(BookingMapper.mapBookingToBookingForItem(nextBooking));
-//        }
-        if(item.getOwner() != userId) {
-            itemWithBooking.setLastBooking(null);
-            itemWithBooking.setNextBooking(null);
-        }
+
         if(!itemComments.isEmpty()) {
             itemWithBooking.setComments(itemComments
                     .stream()
@@ -133,15 +104,8 @@ public class ItemService {
         } else {
             itemWithBooking.setComments(new ArrayList<>());
         }
-//        bookingRepository.findAll().stream()
-//                .filter(booking -> booking.getBooker().getId() == userId)
-//                .collect(Collectors.toList());
-
-
-//        return ItemMapper.mapItemToResponseWithBooking(item);
 
         return itemWithBooking;
-
     }
 
     public List<Item> searchByText(String query) {
@@ -153,7 +117,7 @@ public class ItemService {
         }
     }
 
-//    @Transactional
+    @Transactional
     public Item createItem(int userId, Item item) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
@@ -161,7 +125,7 @@ public class ItemService {
         return itemRepository.save(item);
     }
 
-//    @Transactional
+    @Transactional
     public Item putItem(int itemId, int userId, Item item) {
         Item updateItem = itemRepository.findById(itemId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + itemId));
@@ -184,7 +148,7 @@ public class ItemService {
         }
     }
 
-//    @Transactional
+    @Transactional
     public Item deleteItem(int itemId) {
         Item deleteItem = itemRepository.findById(itemId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + itemId));
@@ -192,7 +156,7 @@ public class ItemService {
         return deleteItem;
     }
 
-//    @Transactional
+    @Transactional
     public Comment createComment(int itemId, int userId, Comment comment) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
