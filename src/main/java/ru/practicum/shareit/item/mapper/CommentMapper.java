@@ -9,7 +9,7 @@ import ru.practicum.shareit.item.model.Comment;
 @UtilityClass
 public class CommentMapper {
 
-    public static CommentResponseDto mapCommentToResponseDto(Comment comment) {
+    public CommentResponseDto mapCommentToResponseDto(Comment comment) {
         CommentResponseDto commentResponse = new CommentResponseDto();
         commentResponse.setId(comment.getId());
         commentResponse.setText(comment.getText());
@@ -18,13 +18,13 @@ public class CommentMapper {
         return commentResponse;
     }
 
-    public static Comment mapCommentDtoToComment(CommentDto commentDto) {
+    public Comment mapCommentDtoToComment(CommentDto commentDto) {
         Comment comment = new Comment();
         comment.setText(commentDto.getText());
         return comment;
     }
 
-    public static CommentForItemDto mapCommentToCommentForItem(Comment comment) {
+    public CommentForItemDto mapCommentToCommentForItem(Comment comment) {
         CommentForItemDto commentForItemDto = new CommentForItemDto();
         commentForItemDto.setId(comment.getId());
         commentForItemDto.setText(comment.getText());

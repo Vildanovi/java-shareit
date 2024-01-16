@@ -12,7 +12,7 @@ import ru.practicum.shareit.user.model.User;
 @UtilityClass
 public class BookingMapper {
 
-    public static Booking mapBookingDtoToBooking(BookingDto bookingDto, Item item, User user) {
+    public Booking mapBookingDtoToBooking(BookingDto bookingDto, Item item, User user) {
         Booking booking = new Booking();
         booking.setStart(bookingDto.getStart());
         booking.setEnd(bookingDto.getEnd());
@@ -21,7 +21,7 @@ public class BookingMapper {
         return booking;
     }
 
-    public static BookingDto mapBookingToBookingDto(Booking booking) {
+    public BookingDto mapBookingToBookingDto(Booking booking) {
         BookingDto bookingDto = new BookingDto();
         bookingDto.setItemId(bookingDto.getItemId());
         bookingDto.setStart(bookingDto.getStart());
@@ -32,7 +32,7 @@ public class BookingMapper {
         return bookingDto;
     }
 
-    public static BookingForItemDto mapBookingToBookingForItem(Booking booking) {
+    public BookingForItemDto mapBookingToBookingForItem(Booking booking) {
         BookingForItemDto bookingForItemDto = new BookingForItemDto();
         bookingForItemDto.setId(booking.getId());
         bookingForItemDto.setStart(booking.getStart());
@@ -42,7 +42,7 @@ public class BookingMapper {
         return bookingForItemDto;
     }
 
-    public static Booking mapNewBookingToBooking(BookingNewDto bookingNewDto, Item item, User user) {
+    public Booking mapNewBookingToBooking(BookingNewDto bookingNewDto, Item item, User user) {
         Booking booking = new Booking();
         booking.setStart(bookingNewDto.getStart());
         booking.setEnd(bookingNewDto.getEnd());
@@ -51,13 +51,13 @@ public class BookingMapper {
         return booking;
     }
 
-    public static BookingResponseDto mapBookingToResponseDto(Booking booking) {
+    public BookingResponseDto mapBookingToResponseDto(Booking booking) {
         BookingResponseDto bookingResponseDto = new BookingResponseDto();
         bookingResponseDto.setId(booking.getId());
         bookingResponseDto.setStart(booking.getStart());
         bookingResponseDto.setEnd(booking.getEnd());
-        bookingResponseDto.setItem(booking.getItem());
-        bookingResponseDto.setBooker(booking.getBooker());
+        bookingResponseDto.setItem(new BookingResponseDto.Item(booking.getItem().getId(), booking.getItem().getName()));
+        bookingResponseDto.setBooker(new BookingResponseDto.Booker(booking.getBooker().getId(), booking.getBooker().getName()));
         bookingResponseDto.setStatus(booking.getStatus());
         return bookingResponseDto;
     }
