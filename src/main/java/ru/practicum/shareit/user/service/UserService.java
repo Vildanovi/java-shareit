@@ -54,7 +54,7 @@ public class UserService {
         if (email != null && !email.isBlank()) {
             updateUser.setEmail(email);
         }
-        return userRepository.save(updateUser);
+        return updateUser;
     }
 
     @Transactional

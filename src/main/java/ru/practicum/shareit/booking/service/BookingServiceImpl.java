@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingNewDto;
@@ -32,7 +33,7 @@ public class BookingServiceImpl implements BookingService {
     public Booking getBookingById(int bookingId, int userId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + bookingId));
-        if (booking.getBooker().getId() != userId && booking.getItem().getOwner() != userId) {
+        if (booking.getBooker().getId() != userId && booking.getItem().getOwner().getId() != userId) {
             throw new EntityNotFoundException("Недоступно так как пользователь не владельц или забронировавший: " + userId);
         }
         return booking;
@@ -53,7 +54,7 @@ public class BookingServiceImpl implements BookingService {
         if (end.isBefore(start) || end.isEqual(start)) {
             throw new ValidationBadRequestException("Дата завершения брони не может быть раньше начала");
         }
-        if (item.getOwner() == userId) {
+        if (item.getOwner().getId() == userId) {
             throw new EntityNotFoundException("Объект не может забронировать владелец: " + userId);
         }
         Booking booking = BookingMapper.mapNewBookingToBooking(bookingNewDto, item, user);
@@ -76,22 +77,22 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings;
         switch (bookingState) {
             case ALL:
-                bookings = bookingRepository.findAllByItem_OwnerOrderByStartDesc(ownerId);
+                bookings = bookingRepository.findAllByItem_Owner_Id(ownerId, Sort.by(Sort.Direction.DESC, "start"));
                 break;
             case REJECTED:
-                bookings = bookingRepository.findAllByItem_OwnerAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED);
+                bookings = bookingRepository.findAllByItem_Owner_IdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED);
                 break;
             case WAITING:
-                bookings = bookingRepository.findAllByItem_OwnerAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING);
+                bookings = bookingRepository.findAllByItem_Owner_IdAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING);
                 break;
             case PAST:
-                bookings = bookingRepository.findAllByItem_OwnerAndEndIsBeforeOrderByStartDesc(ownerId, currentDateTime);
+                bookings = bookingRepository.findAllByItem_Owner_IdAndEndIsBeforeOrderByStartDesc(ownerId, currentDateTime);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findAllByItem_OwnerAndStartAfterOrderByStartDesc(ownerId, currentDateTime);
+                bookings = bookingRepository.findAllByItem_Owner_IdAndStartAfterOrderByStartDesc(ownerId, currentDateTime);
                 break;
             case CURRENT:
-                bookings = bookingRepository.findAllByItem_OwnerAndStartIsBeforeAndEndIsAfterOrderByStartDesc(ownerId, currentDateTime, currentDateTime);
+                bookings = bookingRepository.findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(ownerId, currentDateTime, currentDateTime);
                 break;
             default:
                 throw new ValidationBadRequestException("Unknown state: UNSUPPORTED_STATUS");
@@ -139,7 +140,7 @@ public class BookingServiceImpl implements BookingService {
     public Booking approved(int bookingId, int ownerId, boolean approved) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + bookingId));
-        if (booking.getItem().getOwner() != ownerId) {
+        if (booking.getItem().getOwner().getId() != ownerId) {
             throw new EntityNotFoundException("Подтверджающий бронирование не является владельцем: " + ownerId);
         }
         BookingStatus status = booking.getStatus();

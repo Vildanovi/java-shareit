@@ -13,7 +13,7 @@ public class UserDto {
 
     private int id;
     @Size(groups = {CreatedBy.class, LastModifiedBy.class}, max = 20,
-            message = "Имя пользователя не более 20 символов")
+            message = "Имя пользователя > 20 символов")
     @Pattern(groups = {CreatedBy.class, LastModifiedBy.class}, regexp = "[\\S]{0,}",
             message = "Имя не должно содержать пробелы")
     @NotEmpty(groups = {CreatedBy.class},

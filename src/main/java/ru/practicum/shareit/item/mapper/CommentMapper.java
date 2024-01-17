@@ -28,7 +28,6 @@ public class CommentMapper {
         CommentForItemDto commentForItemDto = new CommentForItemDto();
         commentForItemDto.setId(comment.getId());
         commentForItemDto.setText(comment.getText());
-        commentForItemDto.setItem(comment.getItem());
         commentForItemDto.setAuthorName(comment.getAuthor().getName());
         commentForItemDto.setCreated(comment.getCreated());
         return commentForItemDto;

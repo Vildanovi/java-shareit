@@ -14,8 +14,9 @@ public class ItemDto {
 
     private int id;
     @NotEmpty(groups = {CreatedBy.class}, message = "Вещь не может быть без названия")
+    @Size(groups = {CreatedBy.class}, max = 255, message = "Имя > 255 символов")
     private String name; // краткое название
-    @Size(groups = {CreatedBy.class, LastModifiedBy.class}, max = 500)
+    @Size(groups = {CreatedBy.class, LastModifiedBy.class}, max = 500, message = "Описание > 500 символов")
     @NotEmpty(groups = {CreatedBy.class}, message = "Вещь не может быть без описания")
     private String description; // развёрнутое описание
     @NotNull(groups = {CreatedBy.class}, message = "Вещь не может быть статуса доступности")

@@ -41,10 +41,10 @@ public class ItemService {
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
         List<ItemResponseWithBookingDto> items = itemRepository.findAll()
                 .stream()
-                .filter(item -> item.getOwner() == userId)
+                .filter(item -> item.getOwner().getId() == userId)
                 .map(ItemMapper::mapItemToResponseWithBooking)
                 .collect(Collectors.toList());
-        List<BookingForItemDto> bookings = bookingRepository.findAllByItem_Owner(userId)
+        List<BookingForItemDto> bookings = bookingRepository.findAllByItem_Owner_Id(userId)
                 .stream()
                 .map(BookingMapper::mapBookingToBookingForItem)
                 .collect(Collectors.toList());
@@ -76,14 +76,14 @@ public class ItemService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + itemId));
 
-        Booking lastBooking3 = bookingRepository.findAllByItem_OwnerAndStartIsBeforeOrderByEndDesc(userId, LocalDateTime.now())
+        Booking lastBooking3 = bookingRepository.findAllByItem_Owner_IdAndStartIsBeforeOrderByEndDesc(userId, LocalDateTime.now())
                 .stream()
                 .filter(booking -> booking.getStatus() != BookingStatus.REJECTED)
                 .findFirst().orElse(null);
 
-        Booking nextBooking = bookingRepository.findAllByItem_IdAndItem_OwnerAndStartIsAfterOrderByStartAsc(itemId, userId, LocalDateTime.now())
+        Booking nextBooking = bookingRepository.findAllByItem_IdAndItem_Owner_IdAndStartIsAfterOrderByStartAsc(itemId, userId, LocalDateTime.now())
                 .stream()
-                .findFirst().orElse(null);;
+                .findFirst().orElse(null);
 
         List<Comment> itemComments = commentRepository.findAllByItem_Id(itemId);
 
@@ -113,15 +113,15 @@ public class ItemService {
             return Collections.emptyList();
         } else {
             return itemRepository
-                    .findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndAvailable(query, query, true);
+                    .findByNameContainsIgnoreCaseOrDescriptionContainsIgnoreCaseAndAvailableTrue(query, query);
         }
     }
 
     @Transactional
     public Item createItem(int userId, Item item) {
-        userRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
-        item.setOwner(userId);
+        item.setOwner(user);
         return itemRepository.save(item);
     }
 
@@ -129,7 +129,7 @@ public class ItemService {
     public Item putItem(int itemId, int userId, Item item) {
         Item updateItem = itemRepository.findById(itemId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + itemId));
-        if (updateItem.getOwner() == userId) {
+        if (updateItem.getOwner().getId() == userId) {
             String name = item.getName();
             String description = item.getDescription();
             Boolean available = item.getAvailable();
@@ -142,7 +142,8 @@ public class ItemService {
             if (available != null) {
                 updateItem.setAvailable(available);
             }
-            return itemRepository.save(updateItem);
+            return updateItem;
+//            return itemRepository.save(updateItem);
         } else {
             throw new EntityNotFoundException("Не является владельцем: " + itemId);
         }
