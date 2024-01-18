@@ -2,10 +2,7 @@ package ru.practicum.shareit.user.model;
 
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
-import org.springframework.data.annotation.CreatedBy;
-
 import javax.persistence.*;
-import javax.validation.constraints.Size;
 import java.util.Objects;
 
 @Builder

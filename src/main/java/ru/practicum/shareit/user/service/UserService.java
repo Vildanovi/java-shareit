@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.EntityUpdateException;
-import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import java.util.List;
@@ -18,7 +17,6 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final ItemRepository itemRepository;
 
     public List<User> getAllUsers() {
         log.debug("Получаем всех пользователей");

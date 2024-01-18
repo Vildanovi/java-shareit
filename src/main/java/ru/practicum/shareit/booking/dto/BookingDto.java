@@ -16,6 +16,4 @@ public class BookingDto {
     private int itemId; // вещь, которую пользователь бронирует
     private int bookerId; // пользователь, который осуществляет бронирование
     private BookingStatus status; // статус бронирования
-
-
 }
