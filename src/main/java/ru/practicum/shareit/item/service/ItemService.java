@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingForItemDto;
@@ -23,6 +24,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 @Slf4j
@@ -43,7 +45,10 @@ public class ItemService {
                 .stream()
                 .map(ItemMapper::mapItemToResponseWithBooking)
                 .collect(toList());
-        List<BookingForItemDto> bookings = bookingRepository.findAllByItem_Owner_IdOrderByStartAsc(userId)
+
+
+
+        List<BookingForItemDto> bookings = bookingRepository.findAllByItem_Owner_Id(userId, Sort.by(Sort.Direction.ASC, "start"))
                 .stream()
                 .map(BookingMapper::mapBookingToBookingForItem)
                 .collect(toList());
@@ -51,29 +56,75 @@ public class ItemService {
                 .map(ItemResponseWithBookingDto::getId)
                 .collect(toList());
         List<Comment> comments = commentRepository.findByItem_IdIn(itemIds);
+
         List<ItemResponseWithBookingDto> itemsWithBookings = new ArrayList<>();
 
-        for (ItemResponseWithBookingDto item : allItems) {
+//-----------------
+        List<Item> newAllItems = itemRepository.findAllByOwner_Id(userId);
+        Map<Item, List<Booking>> itemsBookings = bookingRepository
+                .findAllByItem_Owner_Id(userId, Sort.by(Sort.Direction.ASC, "start"))
+                .stream()
+                .collect(groupingBy(Booking::getItem, toList()));
+        List<Integer> iIds = itemsBookings.keySet().stream().map(Item::getId).collect(toList());
+        Map<Integer, List<Comment>> cItem = commentRepository.findByItem_IdIn(iIds)
+                .stream()
+                .collect(groupingBy(Comment::getId, toList()));
+
+        for (Item item : newAllItems) {
             LocalDateTime now = LocalDateTime.now();
-            int itemId = item.getId();
-            item.setLastBooking(bookings
-                    .stream()
-                    .filter(b -> b.getItemId() == itemId)
-                    .filter(b -> !b.getStart().isAfter(now))
-                    .reduce((first, second) -> second)
-                    .orElse(null));
-            item.setNextBooking(bookings
-                    .stream()
-                    .filter(b -> b.getItemId() == itemId)
-                    .filter(b -> b.getStart().isAfter(now))
-                    .findFirst()
-                    .orElse(null));
-            item.setComments(comments
-                    .stream()
-                    .filter(c -> c.getItem().getId() == itemId).map(CommentMapper::mapCommentToCommentForItem)
-                    .collect(toList()));
-            itemsWithBookings.add(item);
+            List<Booking> itemBookings = itemsBookings.getOrDefault(item, null);
+            ItemResponseWithBookingDto itemResult = ItemMapper.mapItemToResponseWithBooking(item);
+            if (itemBookings != null) {
+                List<BookingForItemDto> bookingResult = itemBookings
+                        .stream()
+                        .map(BookingMapper::mapBookingToBookingForItem)
+                        .collect(toList());
+                itemResult.setLastBooking(bookingResult
+                        .stream()
+                        .filter(b -> !b.getStart().isAfter(now))
+                        .reduce((first, second) -> second).orElse(null));
+                itemResult.setNextBooking(bookingResult
+                        .stream()
+                        .filter(b -> b.getStart().isAfter(now))
+                        .findFirst()
+                        .orElse(null));
+            }
+            List<Comment> commentResult = cItem.getOrDefault(item.getId(), null);
+            if (commentResult != null) {
+                itemResult.setComments(commentResult
+                        .stream()
+                        .map(CommentMapper::mapCommentToCommentForItem)
+                        .collect(toList()));
+            }
+            itemsWithBookings.add(itemResult);
         }
+//------------------
+
+//        for (ItemResponseWithBookingDto item : allItems) {
+//            LocalDateTime now = LocalDateTime.now();
+//            int itemId = item.getId();
+//
+//            item.setLastBooking(bookings
+//                    .stream()
+//                    .filter(b -> b.getItemId() == itemId)
+//                    .filter(b -> !b.getStart().isAfter(now))
+//                    .reduce((first, second) -> second)
+//                    .orElse(null));
+//
+//            item.setNextBooking(bookings
+//                    .stream()
+//                    .filter(b -> b.getItemId() == itemId)
+//                    .filter(b -> b.getStart().isAfter(now))
+//                    .findFirst()
+//                    .orElse(null));
+//
+//            item.setComments(comments
+//                    .stream()
+//                    .filter(comment -> comment.getItem().getId() == itemId)
+//                    .map(CommentMapper::mapCommentToCommentForItem)
+//                    .collect(toList()));
+//            itemsWithBookings.add(item);
+//        }
         return itemsWithBookings;
     }
 

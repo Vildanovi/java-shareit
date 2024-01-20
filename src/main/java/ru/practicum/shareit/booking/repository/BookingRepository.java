@@ -9,11 +9,9 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
-    List<Booking> findAllByItem_Owner_IdOrderByStartAsc(int ownerId);
-
     List<Booking> findAllByItem_Owner_Id(int ownerId, Sort sort);
 
-    List<Booking> findAllByItem_Owner_IdAndStatusOrderByStartDesc(int userId, BookingStatus state);
+    List<Booking> findAllByItem_Owner_IdAndStatus(int userId, BookingStatus state, Sort sort);
 
     List<Booking> findAllByItem_Owner_IdAndEndIsBeforeOrderByStartDesc(int userId, LocalDateTime currentDate);
 
