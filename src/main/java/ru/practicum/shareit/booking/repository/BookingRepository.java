@@ -11,6 +11,8 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
     List<Booking> findAllByItem_Owner_Id(int ownerId, Sort sort);
 
+    List<Booking> findAllByItem_IdIn(List<Integer> itemIds, Sort sort);
+
     List<Booking> findAllByItem_Owner_IdAndStatus(int userId, BookingStatus state, Sort sort);
 
     List<Booking> findAllByItem_Owner_IdAndEndIsBeforeOrderByStartDesc(int userId, LocalDateTime currentDate);
@@ -23,18 +25,13 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
     List<Booking> findAllByBooker_IdAndEndIsBeforeOrderByStartDesc(int userId, LocalDateTime currentDate);
 
-    List<Booking> findAllByBooker_IdAndItem_IdAndEndIsBeforeOrderByStartDesc(int userId, int itemId, LocalDateTime currentDate);
+    Boolean existsByBooker_IdAndItem_IdAndEndIsBeforeOrderByStartDesc(int userId, int itemId, LocalDateTime currentDate);
 
     List<Booking> findAllByBooker_IdAndStartAfterOrderByStartDesc(int userId, LocalDateTime currentDate);
 
-    List<Booking> findAllByItem_Owner_IdAndStartIsBeforeOrderByEndDesc(int ownerId, LocalDateTime currentDate);
+    Booking findFirstByItem_IdAndStatusAndStartLessThanEqualOrderByEndDesc(int itemId, BookingStatus status, LocalDateTime currentDate);
 
-    Booking findFirstByItem_Owner_IdAndStatusAndStartLessThanEqualOrderByEndDesc(int ownerId, BookingStatus status, LocalDateTime currentDate);
-
-    List<Booking> findAllByItem_IdAndItem_Owner_IdAndStartIsAfterOrderByStartAsc(int itemId, int ownerId, LocalDateTime currentDate);
-
-    Booking findFirstByItem_IdAndItem_Owner_IdAndStatusAndStartIsAfterOrderByStartAsc(Integer id, Integer id1, BookingStatus status, LocalDateTime start);
-
+    Booking findFirstByItem_IdAndStatusAndStartIsAfterOrderByStartAsc(Integer id, BookingStatus status, LocalDateTime start);
 
     List<Booking> findAllByBooker_IdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(int userId, LocalDateTime startDate, LocalDateTime endDate);
 

@@ -45,28 +45,17 @@ public class ItemService {
                 .stream()
                 .map(ItemMapper::mapItemToResponseWithBooking)
                 .collect(toList());
-
-
-
-        List<BookingForItemDto> bookings = bookingRepository.findAllByItem_Owner_Id(userId, Sort.by(Sort.Direction.ASC, "start"))
-                .stream()
-                .map(BookingMapper::mapBookingToBookingForItem)
-                .collect(toList());
         List<Integer> itemIds = allItems.stream()
                 .map(ItemResponseWithBookingDto::getId)
                 .collect(toList());
-        List<Comment> comments = commentRepository.findByItem_IdIn(itemIds);
-
         List<ItemResponseWithBookingDto> itemsWithBookings = new ArrayList<>();
 
-//-----------------
         List<Item> newAllItems = itemRepository.findAllByOwner_Id(userId);
         Map<Item, List<Booking>> itemsBookings = bookingRepository
-                .findAllByItem_Owner_Id(userId, Sort.by(Sort.Direction.ASC, "start"))
+                .findAllByItem_IdIn(itemIds, Sort.by(Sort.Direction.ASC, "start"))
                 .stream()
                 .collect(groupingBy(Booking::getItem, toList()));
-        List<Integer> iIds = itemsBookings.keySet().stream().map(Item::getId).collect(toList());
-        Map<Integer, List<Comment>> cItem = commentRepository.findByItem_IdIn(iIds)
+        Map<Integer, List<Comment>> cItem = commentRepository.findByItem_IdIn(itemIds)
                 .stream()
                 .collect(groupingBy(Comment::getId, toList()));
 
@@ -98,51 +87,26 @@ public class ItemService {
             }
             itemsWithBookings.add(itemResult);
         }
-//------------------
-
-//        for (ItemResponseWithBookingDto item : allItems) {
-//            LocalDateTime now = LocalDateTime.now();
-//            int itemId = item.getId();
-//
-//            item.setLastBooking(bookings
-//                    .stream()
-//                    .filter(b -> b.getItemId() == itemId)
-//                    .filter(b -> !b.getStart().isAfter(now))
-//                    .reduce((first, second) -> second)
-//                    .orElse(null));
-//
-//            item.setNextBooking(bookings
-//                    .stream()
-//                    .filter(b -> b.getItemId() == itemId)
-//                    .filter(b -> b.getStart().isAfter(now))
-//                    .findFirst()
-//                    .orElse(null));
-//
-//            item.setComments(comments
-//                    .stream()
-//                    .filter(comment -> comment.getItem().getId() == itemId)
-//                    .map(CommentMapper::mapCommentToCommentForItem)
-//                    .collect(toList()));
-//            itemsWithBookings.add(item);
-//        }
         return itemsWithBookings;
     }
 
     public ItemResponseWithBookingDto getItemById(int itemId, int userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
-
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + itemId));
-        Booking lastBooking3 = bookingRepository.findFirstByItem_Owner_IdAndStatusAndStartLessThanEqualOrderByEndDesc(userId, BookingStatus.APPROVED, LocalDateTime.now());
-        Booking nextBooking = bookingRepository.findFirstByItem_IdAndItem_Owner_IdAndStatusAndStartIsAfterOrderByStartAsc(itemId, userId, BookingStatus.APPROVED, LocalDateTime.now());
-
+        Booking lastBooking = null;
+        Booking nextBooking = null;
+        if (Objects.equals(item.getOwner().getId(), userId)) {
+            lastBooking = bookingRepository
+                    .findFirstByItem_IdAndStatusAndStartLessThanEqualOrderByEndDesc(itemId, BookingStatus.APPROVED, LocalDateTime.now());
+            nextBooking = bookingRepository
+                    .findFirstByItem_IdAndStatusAndStartIsAfterOrderByStartAsc(itemId, BookingStatus.APPROVED, LocalDateTime.now());
+        }
         List<Comment> itemComments = commentRepository.findAllByItem_Id(itemId);
-
         ItemResponseWithBookingDto itemWithBooking = ItemMapper.mapItemToResponseWithBooking(item);
-
-        if (lastBooking3 != null) {
-            itemWithBooking.setLastBooking(BookingMapper.mapBookingToBookingForItem(lastBooking3));
+        if (lastBooking != null) {
+            itemWithBooking.setLastBooking(BookingMapper.mapBookingToBookingForItem(lastBooking));
         }
         if (nextBooking != null) {
             itemWithBooking.setNextBooking(BookingMapper.mapBookingToBookingForItem(nextBooking));
@@ -155,7 +119,6 @@ public class ItemService {
         } else {
             itemWithBooking.setComments(Collections.emptyList());
         }
-
         return itemWithBooking;
     }
 
@@ -213,12 +176,9 @@ public class ItemService {
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
-        Booking bookingFinish = bookingRepository
-                .findAllByBooker_IdAndItem_IdAndEndIsBeforeOrderByStartDesc(userId, itemId, LocalDateTime.now())
-                .stream()
-                .findFirst()
-                .orElse(null);
-        if (bookingFinish == null) {
+        boolean booking = bookingRepository
+                .existsByBooker_IdAndItem_IdAndEndIsBeforeOrderByStartDesc(userId, itemId, LocalDateTime.now());
+        if (!booking) {
             throw new ValidationBadRequestException("Нет завершенных бронирований");
         }
         comment.setItem(item);
