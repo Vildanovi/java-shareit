@@ -41,5 +41,4 @@ public class ErrorHandler {
         log.debug("Получен статус 500 Internal Server Error {}", exception.getMessage(), exception);
         return new ErrorResponse(exception.getMessage());
     }
-
 }

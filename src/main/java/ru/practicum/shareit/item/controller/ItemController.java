@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.item.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -7,9 +7,18 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentResponseDto;
+import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.constant.Constants;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
+import ru.practicum.shareit.item.dto.ItemResponseWithBookingDto;
+import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.service.ItemService;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,19 +32,17 @@ public class ItemController {
 
     @GetMapping
     @Operation(summary = "Получить список вещей пользователя")
-    public List<ItemResponseDto> getUserItems(@RequestHeader(Constants.USER_ID) int userId) {
+    public List<ItemResponseWithBookingDto> getUserItems(@RequestHeader(Constants.USER_ID) int userId) {
         log.debug("Получаем список вещей для пользователя c id: {}", userId);
-        return itemService.getItemsByUserId(userId)
-                .stream()
-                .map(ItemMapper::itemResponseDto)
-                .collect(Collectors.toList());
+        return itemService.getItemsWithBookingByUserId(userId);
     }
 
     @GetMapping("/{itemId}")
     @Operation(summary = "Получить вещи по идентификатору")
-    public ItemResponseDto getItem(@PathVariable ("itemId") int itemId) {
-        log.debug("Получаем вещь с id: {}", itemId);
-        return ItemMapper.itemResponseDto(itemService.getItemById(itemId));
+    public ItemResponseWithBookingDto getItem(@PathVariable ("itemId") int itemId,
+                                              @RequestHeader(Constants.USER_ID) int userId) {
+        log.debug("Получаем вещь с id: {} для пользовател: {}", itemId, userId);
+        return itemService.getItemById(itemId, userId);
     }
 
     @GetMapping("/search")
@@ -72,5 +79,14 @@ public class ItemController {
     public ItemResponseDto deleteItem(@PathVariable ("itemId") int itemId) {
         log.debug("Удаляем вещь с id: {}", itemId);
         return ItemMapper.itemResponseDto(itemService.deleteItem(itemId));
+    }
+
+    @PostMapping("/{itemId}/comment")
+    @Operation(summary = "Добавление комментария")
+    public CommentResponseDto postComment(@PathVariable(value = "itemId") int itemId,
+                                          @RequestHeader(Constants.USER_ID) int userId,
+                                          @Validated(CreatedBy.class) @RequestBody CommentDto commentDto) {
+        Comment comment = CommentMapper.mapCommentDtoToComment(commentDto);
+        return CommentMapper.mapCommentToResponseDto(itemService.createComment(itemId, userId, comment));
     }
 }
