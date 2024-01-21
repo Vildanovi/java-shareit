@@ -2,7 +2,6 @@ package ru.practicum.shareit.booking.dto;
 
 import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
-
 import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 

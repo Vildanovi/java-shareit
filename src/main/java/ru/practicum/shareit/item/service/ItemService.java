@@ -48,31 +48,28 @@ public class ItemService {
         List<Integer> itemIds = allItems.stream()
                 .map(ItemResponseWithBookingDto::getId)
                 .collect(toList());
-        List<ItemResponseWithBookingDto> itemsWithBookings = new ArrayList<>();
 
-        List<Item> newAllItems = itemRepository.findAllByOwner_Id(userId);
-        Map<Item, List<Booking>> itemsBookings = bookingRepository
+        Map<Integer, List<Booking>> itemsBookings = bookingRepository
                 .findAllByItem_IdIn(itemIds, Sort.by(Sort.Direction.ASC, "start"))
                 .stream()
-                .collect(groupingBy(Booking::getItem, toList()));
+                .collect(groupingBy(b -> b.getItem().getId(), toList()));
         Map<Integer, List<Comment>> cItem = commentRepository.findByItem_IdIn(itemIds)
                 .stream()
                 .collect(groupingBy(Comment::getId, toList()));
 
-        for (Item item : newAllItems) {
+        for (ItemResponseWithBookingDto item : allItems) {
             LocalDateTime now = LocalDateTime.now();
-            List<Booking> itemBookings = itemsBookings.getOrDefault(item, null);
-            ItemResponseWithBookingDto itemResult = ItemMapper.mapItemToResponseWithBooking(item);
+            List<Booking> itemBookings = itemsBookings.getOrDefault(item.getId(), null);
             if (itemBookings != null) {
                 List<BookingForItemDto> bookingResult = itemBookings
                         .stream()
                         .map(BookingMapper::mapBookingToBookingForItem)
                         .collect(toList());
-                itemResult.setLastBooking(bookingResult
+                item.setLastBooking(bookingResult
                         .stream()
                         .filter(b -> !b.getStart().isAfter(now))
                         .reduce((first, second) -> second).orElse(null));
-                itemResult.setNextBooking(bookingResult
+                item.setNextBooking(bookingResult
                         .stream()
                         .filter(b -> b.getStart().isAfter(now))
                         .findFirst()
@@ -80,14 +77,13 @@ public class ItemService {
             }
             List<Comment> commentResult = cItem.getOrDefault(item.getId(), null);
             if (commentResult != null) {
-                itemResult.setComments(commentResult
+                item.setComments(commentResult
                         .stream()
                         .map(CommentMapper::mapCommentToCommentForItem)
                         .collect(toList()));
             }
-            itemsWithBookings.add(itemResult);
         }
-        return itemsWithBookings;
+        return allItems;
     }
 
     public ItemResponseWithBookingDto getItemById(int itemId, int userId) {
