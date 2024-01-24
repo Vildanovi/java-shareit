@@ -6,6 +6,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import javax.validation.constraints.*;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @Getter
 @Setter
