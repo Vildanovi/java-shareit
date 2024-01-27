@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
 import javax.validation.constraints.NotEmpty;
@@ -21,4 +20,5 @@ public class ItemDto {
     private String description; // развёрнутое описание
     @NotNull(groups = {CreatedBy.class}, message = "Вещь не может быть статуса доступности")
     private Boolean available; // статус о том, доступна или нет вещь для аренды
+    private int requestId;
 }

@@ -14,4 +14,5 @@ public class ItemResponseDto {
     private Boolean available; // статус о том, доступна или нет вещь для аренд
     private BookingDto lastBooking;
     private BookingDto nextBooking;
+    private int requestId;
 }

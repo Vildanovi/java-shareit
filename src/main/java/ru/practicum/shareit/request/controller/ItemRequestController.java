@@ -12,6 +12,10 @@ import ru.practicum.shareit.request.mapper.RequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.service.RequestServiceImpl;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/requests")
@@ -24,8 +28,30 @@ public class ItemRequestController {
     public ItemResponseDto postRequest(@RequestHeader(Constants.USER_ID) int userId,
                                        @Validated(CreatedBy.class) @RequestBody ItemRequestNewDto itemRequestNewDto) {
         ItemRequest itemRequest = RequestMapper.mapRequestDtoToItemRequest(itemRequestNewDto);
+
         return RequestMapper.mapRequestToResponse(requestService.createRequest(itemRequest, userId));
     }
 
+    @GetMapping("/{requestId}")
+    @Operation(summary = "Получение запроса по id")
+    public ItemResponseDto getRequestById(@RequestHeader(Constants.USER_ID) int userId,
+                                          @PathVariable(value = "requestId") int requestId) {
+        return requestService.getRequestById(userId, requestId);
+    }
+
+    @GetMapping
+    @Operation(summary = "Получение всех запросов по id пользователя")
+    public List<ItemResponseDto> getAllByOwner(@RequestHeader("X-Sharer-User-Id") int userId) {
+        return requestService.getAllRequestByOwner(userId);
+    }
+
+    @GetMapping("/all")
+    @Operation(summary = "Получение всех запросов постранично")
+    @Validated
+    public List<ItemResponseDto> getAllRequest(@RequestHeader("X-Sharer-User-Id") int userId,
+                                               @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                               @RequestParam(defaultValue = "10") @Positive Integer size) {
+        return requestService.getAllRequest(userId, from, size);
+    }
 
 }

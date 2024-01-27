@@ -1,6 +1,8 @@
-package ru.practicum.shareit;
+package ru.practicum.shareit.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -28,16 +31,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UserController.class)
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserControllerTest {
 
-    @Autowired
-    ObjectMapper mapper;
+    private final MockMvc mvc;
+    private final ObjectMapper mapper;
 
     @MockBean
-    UserService userService;
+    private UserService userService;
 
-    @Autowired
-    private MockMvc mvc;
     private User user;
     private UserDto userDto;
 
@@ -47,8 +49,9 @@ public class UserControllerTest {
         userDto = new UserDto(1,"name", "name@mail.ru");
     }
 
+    @SneakyThrows
     @Test
-    void saveNewUser() throws Exception {
+    void save_User() throws Exception {
         when(userService.createUser(any()))
                 .thenReturn(user);
 
@@ -61,10 +64,13 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.id", is(user.getId()), Integer.class))
                 .andExpect(jsonPath("$.name", is(user.getName())))
                 .andExpect(jsonPath("$.email", is(user.getEmail())));
+
+        verify(userService).createUser(any());
     }
 
+    @SneakyThrows
     @Test
-    void getAllUsers() throws Exception {
+    void get_AllUsers() throws Exception {
         when(userService.getAllUsers())
                 .thenReturn(List.of(user));
 
@@ -76,8 +82,9 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$[0].email", is(userDto.getEmail())));
     }
 
+    @SneakyThrows
     @Test
-    void saveNewUserWithException() throws Exception {
+    void save_UserException() throws Exception {
         when(userService.createUser(any()))
                 .thenThrow(ValidationBadRequestException.class);
 

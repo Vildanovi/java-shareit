@@ -2,8 +2,6 @@ package ru.practicum.shareit.request.model;
 
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
-import ru.practicum.shareit.item.model.Item;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -18,6 +16,7 @@ import java.util.Objects;
 public class ItemRequest {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String description; // текст запроса, содержащий описание требуемой вещи;
     @Column(name = "requestor_id")
