@@ -111,7 +111,7 @@ public class BookingRepositoryTest {
     void findBookingByItemOwner() {
         Pageable page = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "start"));
         List<Booking> bookingResult = bookingRepository.findAllByItem_Owner_Id(owner.getId(), page);
-        assertThat(bookingResult, hasSize(1));
+        assertThat(bookingResult, hasSize(3));
     }
 
     @Test
