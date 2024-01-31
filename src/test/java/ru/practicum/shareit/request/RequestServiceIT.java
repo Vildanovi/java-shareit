@@ -27,7 +27,7 @@ import static org.hamcrest.Matchers.hasSize;
 @Transactional
 @Rollback
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class RequestServiceTest {
+public class RequestServiceIT {
 
     private final UserService userService;
     private final RequestService requestService;

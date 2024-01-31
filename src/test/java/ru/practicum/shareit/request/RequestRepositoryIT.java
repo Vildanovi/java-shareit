@@ -24,7 +24,7 @@ import static org.hamcrest.Matchers.*;
 
 @DataJpaTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class RequestRepositoryTest {
+public class RequestRepositoryIT {
 
     private final RequestRepository requestRepository;
     private final UserRepository userRepository;

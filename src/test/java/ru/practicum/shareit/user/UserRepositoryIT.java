@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class UserRepositoryTest {
+public class UserRepositoryIT {
 
     private final UserRepository userRepository;
     User user1;

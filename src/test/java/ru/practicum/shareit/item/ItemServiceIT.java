@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Transactional
 @Rollback
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class ItemServiceTest {
+public class ItemServiceIT {
 
     private final UserService userService;
     private final ItemService itemService;
@@ -78,6 +78,9 @@ public class ItemServiceTest {
                 .end(current.plusSeconds(1))
                 .build();
         booking = bookingService.create(bookingNewDto, booker.getId());
+        comment = Comment.builder()
+                .text("itemComment")
+                .build();
     }
 
     @Test
@@ -128,5 +131,20 @@ public class ItemServiceTest {
 
         itemService.deleteItem(itemId);
         assertThrows(EntityNotFoundException.class, () -> itemService.getItemById(itemId, ownerId));
+    }
+
+    @Test
+    void addComment() {
+        int userId = booker.getId();
+        int itemId = item.getId();
+
+        booking.setStart(LocalDateTime.of(2024, 1, 1, 0, 0));
+        booking.setEnd(LocalDateTime.of(2024, 1, 10, 0, 0));
+        booking.setItem(item);
+        bookingService.approved(booking.getId(), item.getOwner().getId(),true);
+
+        Comment createdComment = itemService.createComment(itemId, userId, comment);
+
+        MatcherAssert.assertThat(createdComment.getId(), equalTo(1));
     }
 }

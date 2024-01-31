@@ -116,7 +116,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getAllBookingByUser(int userId,String state, int from, int size) {
+    public List<Booking> getAllBookingByUser(int userId, String state, int from, int size) {
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
         Pageable page = PageRequest.of(from / size, size, sort);
         BookingState bookingState;

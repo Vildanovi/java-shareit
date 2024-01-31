@@ -23,7 +23,7 @@ import static org.hamcrest.Matchers.*;
 @Transactional
 @Rollback
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class UserServiceTest {
+public class UserServiceIT {
 
     private final UserService userService;
 
