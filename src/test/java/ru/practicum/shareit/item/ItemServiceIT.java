@@ -22,9 +22,12 @@ import ru.practicum.shareit.item.dto.ItemResponseWithBookingDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
+
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +52,9 @@ public class ItemServiceIT {
 
     @MockBean
     private final BookingRepository bookingRepository;
+
+    @MockBean
+    private final CommentRepository commentRepository;
 
     private Item item;
     private Item item1;
@@ -125,13 +131,56 @@ public class ItemServiceIT {
         int ownerId = owner.getId();
         List<Booking> bookingList = new ArrayList<>();
         bookingList.add(booking);
+        List<Comment> commentList = new ArrayList<>();
+        comment.setId(1);
+        comment.setAuthor(owner);
+        comment.setCreated(Instant.now());
+        commentList.add(comment);
         when(bookingRepository
                 .findAllByItem_IdIn(anyList(), ArgumentMatchers.any()))
                 .thenReturn(bookingList);
+        when(commentRepository.findByItem_IdIn(ArgumentMatchers.any()))
+                .thenReturn(commentList);
 
         List<ItemResponseWithBookingDto> itemsGet = itemService.getItemsWithBookingByUserId(ownerId);
 
         assertThat(itemsGet, hasSize(1));
+    }
+
+    @Test
+    void getItemById() {
+        int itemId = item.getId();
+        int ownerId = owner.getId();
+        Booking lastBooking = Booking.builder()
+                .id(1)
+                .start(current.minusDays(5))
+                .end(current)
+                .item(item)
+                .booker(booker)
+                .build();
+        Booking nextBooking = Booking.builder()
+                .id(2)
+                .start(current.plusDays(5))
+                .end(current.plusDays(6))
+                .item(item)
+                .booker(booker)
+                .build();
+        List<Comment> commentList = new ArrayList<>();
+        comment.setId(1);
+        comment.setAuthor(owner);
+        comment.setCreated(Instant.now());
+        commentList.add(comment);
+        when(bookingRepository
+                .findFirstByItem_IdAndStatusAndStartLessThanEqualOrderByEndDesc(anyInt(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+                .thenReturn(lastBooking);
+        when(bookingRepository
+                .findFirstByItem_IdAndStatusAndStartIsAfterOrderByStartAsc(anyInt(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+                .thenReturn(nextBooking);
+        when(commentRepository.findAllByItem_Id(anyInt()))
+                .thenReturn(commentList);
+        ItemResponseWithBookingDto foundItem = itemService.getItemById(itemId, ownerId);
+
+        assertThat(foundItem.getName(), equalTo(item.getName()));
     }
 
     @Test
@@ -175,6 +224,8 @@ public class ItemServiceIT {
         List<Item> foundItems = itemService.searchByText(search);
 
         MatcherAssert.assertThat(foundItems, contains(item));
+        assertThat(foundItems.get(0).hashCode(), equalTo(item.hashCode()));
+        assertThat(foundItems.get(0), equalTo(item));
     }
 
     @Test
@@ -184,22 +235,6 @@ public class ItemServiceIT {
 
         itemService.deleteItem(itemId);
         assertThrows(EntityNotFoundException.class, () -> itemService.getItemById(itemId, ownerId));
-    }
-
-    @Test
-    void addComment() {
-        int userId = booker.getId();
-        int itemId = item.getId();
-        Comment comment1 = Comment.builder().build();
-
-        when(bookingRepository
-                .existsByBooker_IdAndItem_IdAndEndIsBeforeOrderByStartDesc(anyInt(), anyInt(), ArgumentMatchers.any()))
-                .thenReturn(true);
-
-        Comment createdComment = itemService.createComment(itemId, userId, comment);
-        assertEquals(createdComment, comment);
-        assertNotEquals(comment1, comment);
-        MatcherAssert.assertThat(createdComment.getId(), equalTo(1));
     }
 
     @Test

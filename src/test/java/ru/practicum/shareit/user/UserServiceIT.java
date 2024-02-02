@@ -63,6 +63,7 @@ public class UserServiceIT {
         User user = userService.createUser(user0);
         User userGet = userService.getUser(user.getId());
         assertThat(userGet, equalTo(user));
+        assertThat(userGet.hashCode(), equalTo(user.hashCode()));
     }
 
     @Test

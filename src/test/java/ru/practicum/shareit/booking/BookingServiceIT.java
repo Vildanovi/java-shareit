@@ -24,6 +24,8 @@ import ru.practicum.shareit.user.service.UserService;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
 @AutoConfigureTestDatabase
@@ -91,6 +93,8 @@ public class BookingServiceIT {
         BookingMapper.mapBookingToBookingForItem(bookingGet);
         MatcherAssert.assertThat(bookingGet, Matchers.equalTo(booking));
         assertNotEquals(booking, booking1);
+        assertThat(bookingGet.hashCode(), equalTo(booking.hashCode()));
+        assertThat(bookingGet, equalTo(booking));
 
     }
 
