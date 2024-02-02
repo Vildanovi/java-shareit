@@ -27,6 +27,7 @@ import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
@@ -152,9 +153,27 @@ public class BookingServiceTest {
     }
 
     @Test
+    void findByUserId_Future() {
+        int ownerId = 2;
+        List<Booking> bookings = new ArrayList<>();
+        bookings.add(booking);
+        when(userRepository.findById(ownerId))
+                .thenReturn(Optional.of(owner));
+        when(bookingRepository.findAllByBooker_IdAndStartAfter(anyInt(), any(), any()))
+                .thenReturn(bookings);
+
+        List<Booking> bookingsStatus = bookingService.getAllBookingByUser(ownerId, "FUTURE", 0, 10);
+
+        assertThat(bookingsStatus, hasSize(1));
+        verify(userRepository).findById(ownerId);
+        verify(bookingRepository).findAllByBooker_IdAndStartAfter(anyInt(), any(), any());
+    }
+
+    @Test
     void findByOwnerId_Past() {
         int ownerId = 2;
         List<Booking> bookings = new ArrayList<>();
+        booking.setStart(currentDate.minusDays(1));
         bookings.add(booking);
         when(userRepository.findById(ownerId))
                 .thenReturn(Optional.of(owner));
@@ -166,6 +185,58 @@ public class BookingServiceTest {
         assertThat(bookingsStatus, contains(booking));
         verify(userRepository).findById(ownerId);
         verify(bookingRepository).findAllByItem_Owner_IdAndEndIsBefore(anyInt(), any(), any());
+    }
+
+    @Test
+    void findByUserId_Past() {
+        int bookerId = 1;
+        List<Booking> bookings = new ArrayList<>();
+        bookings.add(booking);
+        when(userRepository.findById(bookerId))
+                .thenReturn(Optional.of(booker));
+        when(bookingRepository.findAllByBooker_IdAndEndIsBefore(anyInt(), any(), any()))
+                .thenReturn(bookings);
+
+        List<Booking> bookingsStatus = bookingService.getAllBookingByUser(bookerId, "PAST", 0, 10);
+
+        assertThat(bookingsStatus, hasSize(1));
+        verify(userRepository).findById(bookerId);
+        verify(bookingRepository).findAllByBooker_IdAndEndIsBefore(anyInt(), any(), any());
+    }
+
+    @Test
+    void findByOwnerId_Current() {
+        int ownerId = 2;
+        List<Booking> bookings = new ArrayList<>();
+        bookings.add(booking);
+        when(userRepository.findById(ownerId))
+                .thenReturn(Optional.of(owner));
+        when(bookingRepository.findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(anyInt(), any(), any(), any()))
+                .thenReturn(bookings);
+
+        List<Booking> bookingsStatus = bookingService.getAllBookingByOwner(ownerId, "CURRENT", 0, 10);
+
+        assertThat(bookingsStatus, contains(booking));
+        verify(userRepository).findById(ownerId);
+        verify(bookingRepository).findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(anyInt(), any(), any(), any());
+    }
+
+    @Test
+    void findByUserId_Current() {
+        int ownerId = 2;
+        List<Booking> bookings = new ArrayList<>();
+        booking.setStart(currentDate.minusDays(5));
+        bookings.add(booking);
+        when(userRepository.findById(ownerId))
+                .thenReturn(Optional.of(owner));
+        when(bookingRepository.findAllByBooker_IdAndStartIsBeforeAndEndIsAfter(anyInt(), any(), any(), any()))
+                .thenReturn(bookings);
+
+        List<Booking> bookingsStatus = bookingService.getAllBookingByUser(ownerId, "CURRENT", 0, 10);
+
+        assertThat(bookingsStatus, hasSize(1));
+        verify(userRepository).findById(ownerId);
+        verify(bookingRepository).findAllByBooker_IdAndStartIsBeforeAndEndIsAfter(anyInt(), any(), any(), any());
     }
 
     @Test

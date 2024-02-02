@@ -15,6 +15,7 @@ import ru.practicum.shareit.exception.ValidationBadRequestException;
 import ru.practicum.shareit.user.controller.UserController;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.nio.charset.StandardCharsets;
@@ -23,9 +24,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -40,9 +39,13 @@ public class UserControllerIT {
     @MockBean
     private UserService userService;
 
+    @MockBean
+    private UserRepository userRepository;
+
     private User user;
     private UserDto userDto;
     private UserDto userUpdate;
+    private UserDto userUpdateException;
 
     @BeforeEach
     void setUp() {
@@ -51,6 +54,10 @@ public class UserControllerIT {
         userUpdate = UserDto.builder()
                 .name("update")
                 .email("update@mail.ru")
+                .build();
+        userUpdateException = UserDto.builder()
+                .name("name")
+                .email("name@mail.ru")
                 .build();
     }
 

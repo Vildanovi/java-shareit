@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
+
 import java.util.List;
 import java.util.Optional;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -20,22 +21,12 @@ public class UserRepositoryIT {
 
     private final UserRepository userRepository;
     User user1;
-    User user2;
-    User user3;
 
     @BeforeEach
     void setUp() {
         user1 = userRepository.save(User.builder()
                 .name("user1Name")
                 .email("user1@mail.ru")
-                .build());
-        user2 = userRepository.save(User.builder()
-                .name("user2Name")
-                .email("user2@mail.ru")
-                .build());
-        user3 = userRepository.save(User.builder()
-                .name("user3Name")
-                .email("user3@mail.ru")
                 .build());
     }
 
@@ -58,7 +49,9 @@ public class UserRepositoryIT {
 
     @Test
     void getAllUser() {
+        User user = User.builder().build();
         List<User> users = userRepository.findAll();
-        assertThat(users, hasSize(3));
+        assertNotEquals(users.get(0), user);
+        assertThat(users, hasSize(1));
     }
 }

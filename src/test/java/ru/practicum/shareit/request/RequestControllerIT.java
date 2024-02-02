@@ -19,6 +19,7 @@ import ru.practicum.shareit.request.service.RequestServiceImpl;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
@@ -26,6 +27,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @WebMvcTest({ItemRequestController.class})
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -160,5 +162,41 @@ public class RequestControllerIT {
         verify(requestService).getAllRequest(ownerId, 0, 10);
     }
 
+    @SneakyThrows
+    @Test
+    void getAllByOwner() {
+        int userId = 1;
 
+        List<ItemResponseDto> list = Collections.emptyList();
+
+        when(requestService.getAllRequestByOwner(userId)).thenReturn(list);
+
+        String result = mvc.perform(get("/requests")
+                        .header("X-Sharer-User-Id", userId))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        assertEquals(result, mapper.writeValueAsString(list));
+    }
+
+    @SneakyThrows
+    @Test
+    void getRequestById() {
+        int userId = 1;
+        int requestId = 1;
+        ItemResponseDto itemRequestDto = ItemResponseDto.builder().build();
+
+        when(requestService.getRequestById(userId, requestId)).thenReturn(itemRequestDto);
+
+        String result = mvc.perform(get("/requests/{requestId}", requestId)
+                        .header("X-Sharer-User-Id", userId))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        assertEquals(result, mapper.writeValueAsString(itemRequestDto));
+    }
 }

@@ -21,6 +21,8 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @DataJpaTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -76,6 +78,8 @@ public class RequestRepositoryIT {
     void findByRequestor() {
         Sort sort = Sort.by(Sort.Direction.DESC, "created");
         List<ItemRequest> requestResult = requestRepository.findAllByRequestor(requestor.getId(), sort);
+        assertEquals(requestResult.get(0), itemRequestByRequestor);
+        assertNotEquals(requestResult.get(0), itemRequest1ByRequestor);
         assertThat(requestResult, hasSize(1));
     }
 
@@ -85,6 +89,4 @@ public class RequestRepositoryIT {
         List<ItemRequest> requestResult = requestRepository.findAllByRequestorNot(requestor.getId(), page);
         assertThat(requestResult, hasSize(2));
     }
-
-
 }

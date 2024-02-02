@@ -6,11 +6,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
+
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -51,6 +53,12 @@ public class UserServiceIT {
     }
 
     @Test
+    void getById_NotFound() {
+        int userId = 0;
+        assertThrows(EntityNotFoundException.class, () -> userService.getUser(userId));
+    }
+
+    @Test
     void getById() {
         User user = userService.createUser(user0);
         User userGet = userService.getUser(user.getId());
@@ -58,13 +66,30 @@ public class UserServiceIT {
     }
 
     @Test
+    void getAll_Empty() {
+        List<User> users = userService.getAllUsers();
+
+        assertThat(users, hasSize(0));
+    }
+
+    @Test
     void put() {
         User updateUser = new User();
         updateUser.setName("updateuser");
+        updateUser.setEmail("updateuser@mail.ru");
         User newUser = userService.createUser(user0);
         User newUserUpdate = userService.putUser(newUser.getId(), updateUser);
         assertThat(newUserUpdate.getName(), equalTo(updateUser.getName()));
+    }
 
+    @Test
+    void create_EqualEmail() {
+        user0.setEmail("mail@mail.com");
+        user1.setEmail("mail@mail.com");
+
+        userService.createUser(user0);
+
+        assertThrows(DataIntegrityViolationException.class, () -> userService.createUser(user1));
     }
 
     @Test

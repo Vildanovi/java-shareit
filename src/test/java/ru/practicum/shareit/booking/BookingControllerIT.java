@@ -12,13 +12,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.controller.BookingController;
 import ru.practicum.shareit.booking.dto.BookingNewDto;
+import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.enumerations.BookingStatus;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ValidationBadRequestException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -177,14 +180,19 @@ public class BookingControllerIT {
         int bookingId = 1;
         when(bookingService.approved(anyInt(), anyInt(), anyBoolean()))
                 .thenReturn(booking);
-        mvc.perform(patch("/bookings/{bookingId}", bookingId)
+        BookingResponseDto bookingResponseDto = BookingMapper.mapBookingToResponseDto(booking);
+        String result = mvc.perform(patch("/bookings/{bookingId}", bookingId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .header("X-Sharer-User-Id", ownerId)
                         .param("approved", Boolean.toString(true)))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
+        assertEquals(result, mapper.writeValueAsString(bookingResponseDto));
         verify(bookingService).approved(bookingId, ownerId, true);
     }
 }

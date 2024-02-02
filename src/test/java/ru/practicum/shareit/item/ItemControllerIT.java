@@ -11,13 +11,18 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingForItemDto;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.controller.ItemController;
-import ru.practicum.shareit.item.dto.CommentForItemDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemResponseWithBookingDto;
+import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.CommentRepository;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -25,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -40,6 +46,18 @@ public class ItemControllerIT {
     @MockBean
     private ItemService itemService;
 
+    @MockBean
+    private UserRepository userRepository;
+
+    @MockBean
+    private ItemRepository itemRepository;
+
+    @MockBean
+    private BookingRepository bookingRepository;
+
+    @MockBean
+    private CommentRepository commentRepository;
+
     User owner;
     Item item;
     ItemDto itemDto;
@@ -54,8 +72,11 @@ public class ItemControllerIT {
     @BeforeEach
     void setUp() {
         Instant current = Instant.now();
-        owner = new User();
-        owner.setId(1);
+        owner = User.builder()
+                .id(1)
+                .name("ownerName")
+                .email("owner@email.ru")
+                .build();
         item = new Item(1,
                 "itemName",
                 "itemDescription",
@@ -156,8 +177,9 @@ public class ItemControllerIT {
         int ownerId = 1;
         when(itemService.putItem(anyInt(), anyInt(), any()))
                 .thenReturn(item);
+        ItemResponseDto itemResponseDto = ItemMapper.itemResponseDto(item);
 
-        mvc.perform(patch("/items/{itemId}", itemId)
+        String result = mvc.perform(patch("/items/{itemId}", itemId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .header("X-Sharer-User-Id", ownerId)
@@ -167,6 +189,7 @@ public class ItemControllerIT {
                 .getResponse()
                 .getContentAsString();
 
+        assertEquals(result, mapper.writeValueAsString(itemResponseDto));
         verify(itemService).putItem(itemId, ownerId, item);
     }
 
@@ -205,5 +228,41 @@ public class ItemControllerIT {
                 .andExpect(jsonPath("$.description", equalTo(itemResponseWithBookingDto.getDescription())));
 
         verify(itemService).getItemById(itemId, userId);
+    }
+
+    @SneakyThrows
+    @Test
+    void addComment() {
+        int userId = 1;
+        int itemId = 1;
+        Comment comment = Comment.builder()
+                .id(1)
+                .text("text")
+                .item(item)
+                .author(owner)
+                .build();
+        CommentDto commentDto = new CommentDto();
+        commentDto.setText("comment");
+        when(itemService.createComment(anyInt(), anyInt(), any()))
+                .thenReturn(comment);
+
+        String result = mvc.perform(post("/items/{itemId}/comment", itemId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", userId)
+                        .content(mapper.writeValueAsString(commentDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", equalTo(comment.getId()), Integer.class))
+                .andExpect(jsonPath("$.authorName", equalTo(comment.getAuthor().getName())))
+                .andExpect(jsonPath("$.text", equalTo(comment.getText())))
+                .andExpect(jsonPath("$.created", equalTo(comment.getCreated())))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        CommentResponseDto commentResponseDto = CommentMapper.mapCommentToResponseDto(comment);
+        CommentMapper.mapCommentToCommentForItem(comment);
+        assertEquals(result, mapper.writeValueAsString(commentResponseDto));
+        verify(itemService).createComment(anyInt(), anyInt(), any());
     }
 }

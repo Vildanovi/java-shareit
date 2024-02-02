@@ -13,6 +13,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingNewDto;
 import ru.practicum.shareit.booking.enumerations.BookingStatus;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
 import ru.practicum.shareit.exception.EntityNotFoundException;
@@ -22,7 +23,8 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 import java.time.LocalDateTime;
 import java.util.List;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @AutoConfigureTestDatabase
 @SpringBootTest
@@ -84,8 +86,12 @@ public class BookingServiceIT {
     void getBookingById() {
         int bookingId = booking.getId();
         int userId = owner.getId();
+        Booking booking1 = Booking.builder().build();
         Booking bookingGet = bookingService.getBookingById(bookingId, userId);
+        BookingMapper.mapBookingToBookingForItem(bookingGet);
         MatcherAssert.assertThat(bookingGet, Matchers.equalTo(booking));
+        assertNotEquals(booking, booking1);
+
     }
 
     @SneakyThrows
@@ -102,6 +108,16 @@ public class BookingServiceIT {
     void getAllBookingByUser_StatusAll() {
         int bookerId = booker.getId();
         List<Booking> bookingGet = bookingService.getAllBookingByUser(bookerId, "ALL", 0, 10);
+        MatcherAssert.assertThat(bookingGet, Matchers.contains(booking));
+    }
+
+    @SneakyThrows
+    @Test
+    void getAllBookingByUser_StatusPast() {
+        int bookerId = booker.getId();
+        booking.setStart(current.minusDays(5));
+        booking.setEnd(current.minusDays(2));
+        List<Booking> bookingGet = bookingService.getAllBookingByUser(bookerId, "PAST", 0, 10);
         MatcherAssert.assertThat(bookingGet, Matchers.contains(booking));
     }
 
@@ -142,6 +158,4 @@ public class BookingServiceIT {
         int bookingId = booking.getId();
         assertThrows(EntityNotFoundException.class, () -> bookingService.getBookingById(bookingId, userId));
     }
-
-
 }

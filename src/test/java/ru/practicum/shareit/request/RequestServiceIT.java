@@ -87,10 +87,5 @@ public class RequestServiceIT {
     void getById() {
         ItemResponseDto request = requestService.getRequestById(requestor1.getId(), itemRequest1ByRequestor.getId());
         MatcherAssert.assertThat(request.getDescription(), equalTo(itemRequest1ByRequestor.getDescription()));
-
     }
-
-
-
-//    ItemResponseDto getRequestById(int userId, int requestId);
 }
