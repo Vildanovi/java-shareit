@@ -211,6 +211,13 @@ public class ItemServiceIT {
     }
 
     @Test
+    void put_ExceptionItem() {
+        int itemId = 100;
+        int userId = owner.getId();
+        assertThrows(EntityNotFoundException.class, () -> itemService.putItem(itemId, userId, item1));
+    }
+
+    @Test
     void put_Exception() {
         int itemId = item.getId();
         int userId = booker.getId();

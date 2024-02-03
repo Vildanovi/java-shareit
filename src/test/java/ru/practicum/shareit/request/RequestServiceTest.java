@@ -106,4 +106,17 @@ public class RequestServiceTest {
         verify(requestRepository).findAllByRequestor(anyInt(), any());
         verify(itemRepository).findAllByRequestIn(any());
     }
+
+    @Test
+    void getRequestById_NotFoundRequest() {
+        int userId = 1;
+        int requestId = 1;
+
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> requestService.getRequestById(userId, requestId));
+
+        verify(userRepository).findById(userId);
+    }
 }

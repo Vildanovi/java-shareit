@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.EntityUpdateException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -59,6 +60,40 @@ public class UserServiceTest {
         when(userRepository.findById(anyInt())).thenReturn(Optional.of(user1));
         EntityUpdateException entityUpdateException = assertThrows(EntityUpdateException.class, () -> userService.putUser(user1.getId(), updateUser));
         assertThat(entityUpdateException.getMessage(), equalTo("Объект уже существует: user1@mail.ru"));
+    }
+
+    @Test
+    void getUser_NotFound() {
+        int userId = user1.getId();
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> userService.getUser(userId));
+        verify(userRepository).findById(userId);
+    }
+
+    @Test
+    void getUser_Found() {
+        int userId = user1.getId();
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.of(user1));
+        User user = userService.getUser(userId);
+        assertThat(user.getName(), equalTo("user1Name"));
+        verify(userRepository).findById(userId);
+    }
+
+    @Test
+    void putUser_NotFound() {
+        int userId = user1.getId();
+        User updateuser = User.builder()
+                .name("newUser")
+                .email("newUser@email.ru")
+                .build();
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> userService.putUser(userId, updateuser));
+        verify(userRepository).findById(userId);
     }
 
 }
