@@ -19,6 +19,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/requests")
+@Validated
 public class ItemRequestController {
 
     private final RequestServiceImpl requestService;
@@ -41,17 +42,15 @@ public class ItemRequestController {
 
     @GetMapping
     @Operation(summary = "Получение всех запросов по id пользователя")
-    public List<ItemResponseDto> getAllByOwner(@RequestHeader("X-Sharer-User-Id") int userId) {
+    public List<ItemResponseDto> getAllByOwner(@RequestHeader(Constants.USER_ID) int userId) {
         return requestService.getAllRequestByOwner(userId);
     }
 
     @GetMapping("/all")
     @Operation(summary = "Получение всех запросов постранично")
-    @Validated
-    public List<ItemResponseDto> getAllRequest(@RequestHeader("X-Sharer-User-Id") int userId,
+    public List<ItemResponseDto> getAllRequest(@RequestHeader(Constants.USER_ID) int userId,
                                                @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
                                                @RequestParam(defaultValue = "10") @Positive Integer size) {
         return requestService.getAllRequest(userId, from, size);
     }
-
 }

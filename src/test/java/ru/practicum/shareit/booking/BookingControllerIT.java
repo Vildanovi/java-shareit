@@ -17,6 +17,7 @@ import ru.practicum.shareit.booking.enumerations.BookingStatus;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.constant.Constants;
 import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.exception.ValidationBadRequestException;
 import ru.practicum.shareit.item.model.Item;
@@ -98,7 +99,7 @@ public class BookingControllerIT {
         mvc.perform(post("/bookings")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", bookerId)
+                        .header(Constants.USER_ID, bookerId)
                         .content(mapper.writeValueAsString(bookingNewDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(booking.getId()), Integer.class))
@@ -123,7 +124,7 @@ public class BookingControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", bookerId))
+                        .header(Constants.USER_ID, bookerId))
                 .andExpect(status().isNotFound());
 
         verify(bookingService).getBookingById(bookingId, bookerId);
@@ -141,7 +142,7 @@ public class BookingControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", bookerId)
+                        .header(Constants.USER_ID, bookerId)
                         .param("state", badState)
                         .param("from", "0")
                         .param("size", "10")
@@ -163,7 +164,7 @@ public class BookingControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", bookerId)
+                        .header(Constants.USER_ID, bookerId)
                         .param("state", badState)
                         .param("from", "0")
                         .param("size", "10")
@@ -185,7 +186,7 @@ public class BookingControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", ownerId)
+                        .header(Constants.USER_ID, ownerId)
                         .param("approved", Boolean.toString(true)))
                 .andExpect(status().isOk())
                 .andReturn()

@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.constant.Constants;
 import ru.practicum.shareit.request.controller.ItemRequestController;
 import ru.practicum.shareit.request.dto.ItemRequestNewDto;
 import ru.practicum.shareit.request.dto.ItemResponseDto;
@@ -56,47 +57,9 @@ public class RequestControllerIT {
         itemsResponse.add(itemResponseDto);
     }
 
-//    @BeforeEach
-//    void setUp() {
-//        Instant current = Instant.now();
-//        owner = new User();
-//        owner.setId(1);
-//        item = new Item(1,
-//                "itemName",
-//                "itemDescription",
-//                false, owner,
-//                1);
-//        itemDto = ItemDto.builder()
-//                .id(1)
-//                .name("itemName")
-//                .description("itemDescription")
-//                .available(false)
-//                .build();
-//        lastBookingForItemDto = null;
-//        nextBookingForItemDto = null;
-//        commentForItemDto = CommentForItemDto.builder()
-//                .id(1)
-//                .text("commentText")
-//                .authorName("authorName")
-//                .created(current)
-//                .build();
-//        listComments = List.of(commentForItemDto);
-//        itemResponseWithBookingDto = ItemResponseWithBookingDto.builder()
-//                .id(1)
-//                .name("itemResponseName")
-//                .description("itemResponseDescription")
-////                .available(true)
-////                .lastBooking(null)
-////                .nextBooking(null)
-////                .comments(null)
-//                .build();
-//        listItemResponse = new ArrayList<>();
-////        listItemResponse.add(itemResponseWithBookingDto);
-//    }
-
     @SneakyThrows
     @Test
-    void create_Request() {
+    void post_Request() {
         int requestId = 1;
         ItemRequestNewDto itemRequestNewDto = ItemRequestNewDto.builder()
                 .description("requestDescription")
@@ -115,7 +78,7 @@ public class RequestControllerIT {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1)
+                        .header(Constants.USER_ID, 1)
                         .content(mapper.writeValueAsString(itemRequestNewDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(itemRequest.getId()), Integer.class))
@@ -128,6 +91,31 @@ public class RequestControllerIT {
 
     @SneakyThrows
     @Test
+    void post_ExceptionDescription() {
+        int ownerId = 1;
+        int requestId = 1;
+        ItemRequest itemRequest = ItemRequest.builder()
+                .id(requestId)
+                .description("requestDescription")
+                .created(LocalDateTime.now())
+                .build();
+        when(requestService.createRequest(any(), anyInt()))
+                .thenReturn(itemRequest);
+        ItemRequestNewDto itemRequestNewDto = ItemRequestNewDto.builder()
+                .description("")
+                .build();
+
+        mvc.perform(post("/requests")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(Constants.USER_ID, ownerId)
+                        .content(mapper.writeValueAsString(itemRequestNewDto)))
+                .andExpect(status().isBadRequest());
+        verify(requestService, never()).createRequest(any(), anyInt());
+    }
+
+    @SneakyThrows
+    @Test
     void getItems() {
         int ownerId = 1;
         when(requestService.getAllRequest(anyInt(), anyInt(), anyInt()))
@@ -136,7 +124,7 @@ public class RequestControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", ownerId)
+                        .header(Constants.USER_ID, ownerId)
                         .param("from", "0")
                         .param("size", "10"))
                 .andExpect(status().isOk());
@@ -154,7 +142,7 @@ public class RequestControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", ownerId)
+                        .header(Constants.USER_ID, ownerId)
                         .param("from", "0")
                         .param("size", "10"))
                 .andExpect(status().isOk());
@@ -172,7 +160,7 @@ public class RequestControllerIT {
         when(requestService.getAllRequestByOwner(userId)).thenReturn(list);
 
         String result = mvc.perform(get("/requests")
-                        .header("X-Sharer-User-Id", userId))
+                        .header(Constants.USER_ID, userId))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -191,7 +179,7 @@ public class RequestControllerIT {
         when(requestService.getRequestById(userId, requestId)).thenReturn(itemRequestDto);
 
         String result = mvc.perform(get("/requests/{requestId}", requestId)
-                        .header("X-Sharer-User-Id", userId))
+                        .header(Constants.USER_ID, userId))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()

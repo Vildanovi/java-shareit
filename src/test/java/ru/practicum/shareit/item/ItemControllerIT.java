@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingForItemDto;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.constant.Constants;
 import ru.practicum.shareit.item.controller.ItemController;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.mapper.CommentMapper;
@@ -104,10 +105,6 @@ public class ItemControllerIT {
                 .id(1)
                 .name("itemResponseName")
                 .description("itemResponseDescription")
-//                .available(true)
-//                .lastBooking(null)
-//                .nextBooking(null)
-//                .comments(null)
                 .build();
         listItemResponse = new ArrayList<>();
         listItemResponse.add(itemResponseWithBookingDto);
@@ -123,7 +120,7 @@ public class ItemControllerIT {
         mvc.perform(post("/items")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .header("X-Sharer-User-Id", ownerId)
+                .header(Constants.USER_ID, ownerId)
                 .content(mapper.writeValueAsString(itemDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(item.getId()), Integer.class))
@@ -144,7 +141,7 @@ public class ItemControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", ownerId))
+                        .header(Constants.USER_ID, ownerId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id", equalTo(itemResponseWithBookingDto.getId()), Integer.class))
                 .andExpect(jsonPath("$[0].description", equalTo(itemResponseWithBookingDto.getDescription())));
@@ -164,7 +161,7 @@ public class ItemControllerIT {
                         .accept(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .param("text", text)
-                        .header("X-Sharer-User-Id", ownerId))
+                        .header(Constants.USER_ID, ownerId))
                 .andExpect(status().isOk());
 
         verify(itemService).searchByText(text);
@@ -182,7 +179,7 @@ public class ItemControllerIT {
         String result = mvc.perform(patch("/items/{itemId}", itemId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", ownerId)
+                        .header(Constants.USER_ID, ownerId)
                         .content(mapper.writeValueAsString(itemDto)))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -221,7 +218,7 @@ public class ItemControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", userId))
+                        .header(Constants.USER_ID, userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", equalTo(item.getId()), Integer.class))
                 .andExpect(jsonPath("$.name", equalTo(itemResponseWithBookingDto.getName())))
@@ -250,7 +247,7 @@ public class ItemControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .characterEncoding(StandardCharsets.UTF_8)
-                        .header("X-Sharer-User-Id", userId)
+                        .header(Constants.USER_ID, userId)
                         .content(mapper.writeValueAsString(commentDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", equalTo(comment.getId()), Integer.class))
@@ -264,5 +261,75 @@ public class ItemControllerIT {
         CommentMapper.mapCommentToCommentForItem(comment);
         assertEquals(result, mapper.writeValueAsString(commentResponseDto));
         verify(itemService).createComment(anyInt(), anyInt(), any());
+    }
+
+    @SneakyThrows
+    @Test
+    void putItem_ExceptionSize() {
+        int itemId = itemDto.getId();
+        int userId = owner.getId();
+        itemDto.setDescription("Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy " +
+                "nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim " +
+                "veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea " +
+                "commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse " +
+                "molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan " +
+                "et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te " +
+                "feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed " +
+                "diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi " +
+                "enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut " +
+                "aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate " +
+                "velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et " +
+                "accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis " +
+                "dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, " +
+                "sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi " +
+                "enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip " +
+                "ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse " +
+                "molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et " +
+                "iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait " +
+                "nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh " +
+                "euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, " +
+                "quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat." +
+                "Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel " +
+                "illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui " +
+                "blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum " +
+                "dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut " +
+                "laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud " +
+                "exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. " +
+                "Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, " +
+                "vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim " +
+                "qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. " +
+                "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod " +
+                "tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, " +
+                "quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo " +
+                "consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie " +
+                "consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio " +
+                "dignissim qui blandit praesent luptatum zzril delenit augue duis dolore");
+        when(itemService.putItem(anyInt(), anyInt(), any()))
+                .thenReturn(item);
+        mvc.perform(patch("/items/{itemId}", itemId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding(StandardCharsets.UTF_8)
+                .header(Constants.USER_ID, userId)
+                .content(mapper.writeValueAsString(itemDto)))
+                .andExpect(status().isBadRequest());
+        verify(itemService, never()).putItem(anyInt(), anyInt(), any());
+    }
+
+    @SneakyThrows
+    @Test
+    void postItem_ExceptionNullDescription() {
+        int ownerId = 1;
+        when(itemService.createItem(anyInt(), any()))
+                .thenReturn(item);
+        itemDto.setDescription(null);
+
+        mvc.perform(post("/items")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(Constants.USER_ID, ownerId)
+                        .content(mapper.writeValueAsString(itemDto)))
+                .andExpect(status().isBadRequest());
+        verify(itemService, never()).createItem(anyInt(), any());
     }
 }
