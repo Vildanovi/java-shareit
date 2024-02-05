@@ -10,12 +10,15 @@ import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.constant.Constants;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
+@Validated
 public class BookingController {
 
     private final BookingService bookingService;
@@ -37,8 +40,10 @@ public class BookingController {
     @GetMapping("/owner")
     @Operation(summary = "Получить все бронирования владельца")
     public List<BookingResponseDto> getAllByOwner(@RequestParam(value = "state", defaultValue = "ALL") String state,
-                                                  @RequestHeader(Constants.USER_ID) int userId) {
-        return bookingService.getAllBookingByOwner(userId, state).stream()
+                                                  @RequestHeader(Constants.USER_ID) int userId,
+                                                  @RequestParam(defaultValue = "0") @PositiveOrZero int from,
+                                                  @RequestParam(defaultValue = "10") @Positive int size) {
+        return bookingService.getAllBookingByOwner(userId, state, from, size).stream()
                 .map(BookingMapper::mapBookingToResponseDto)
                 .collect(Collectors.toList());
     }
@@ -46,8 +51,10 @@ public class BookingController {
     @GetMapping()
     @Operation(summary = "Получить все бронирования пользователя")
     public List<BookingResponseDto> getAllByUser(@RequestParam(value = "state", defaultValue = "ALL") String state,
-                                                 @RequestHeader(Constants.USER_ID) int userId) {
-        return bookingService.getAllBookingByUser(userId, state).stream()
+                                                 @RequestHeader(Constants.USER_ID) int userId,
+                                                 @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero int from,
+                                                 @RequestParam(value = "size", defaultValue = "10") @Positive int size) {
+        return bookingService.getAllBookingByUser(userId, state, from, size).stream()
                 .map(BookingMapper::mapBookingToResponseDto)
                 .collect(Collectors.toList());
     }
