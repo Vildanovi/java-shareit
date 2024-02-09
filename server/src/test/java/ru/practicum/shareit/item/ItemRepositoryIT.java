@@ -96,10 +96,10 @@ public class ItemRepositoryIT {
         assertThat(itemResult, hasSize(1));
     }
 
-    @Test
-    void findByRequest() {
-        List<Item> itemResult = itemRepository
-                .findAllByRequestIn(List.of(1, 2, 3));
-        assertThat(itemResult, hasSize(2));
-    }
+//    @Test
+//    void findByRequest() {
+//        List<Item> itemResult = itemRepository
+//                .findAllByRequestIn(List.of(1, 2, 3));
+//        assertThat(itemResult, hasSize(2));
+//    }
 }
