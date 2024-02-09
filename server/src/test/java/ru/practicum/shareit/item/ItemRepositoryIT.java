@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,15 +73,6 @@ public class ItemRepositoryIT {
                 .build());
     }
 
-    @AfterEach
-    void cleanRepositories() {
-        bookingRepository.deleteAll();
-        itemRepository.deleteAll();
-        userRepository.deleteAll();
-        commentRepository.deleteAll();
-        requestRepository.deleteAll();;
-    }
-
     @Test
     void findByOwner() {
         List<Item> itemResult = itemRepository.findAllByOwner_IdOrderByIdAsc(owner.getId());
@@ -96,10 +86,10 @@ public class ItemRepositoryIT {
         assertThat(itemResult, hasSize(1));
     }
 
-//    @Test
-//    void findByRequest() {
-//        List<Item> itemResult = itemRepository
-//                .findAllByRequestIn(List.of(1, 2, 3));
-//        assertThat(itemResult, hasSize(2));
-//    }
+    @Test
+    void findByRequest() {
+        List<Item> itemResult = itemRepository
+                .findAllByRequestIn(List.of(itemRequestByRequestor.getId()));
+        assertThat(itemResult, hasSize(2));
+    }
 }
