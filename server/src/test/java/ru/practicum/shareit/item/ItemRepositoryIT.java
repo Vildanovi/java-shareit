@@ -85,7 +85,7 @@ public class ItemRepositoryIT {
 
     @Test
     void findByOwner() {
-        List<Item> itemResult = itemRepository.findAllByOwner_Id(owner.getId());
+        List<Item> itemResult = itemRepository.findAllByOwner_IdOrderByIdAsc(owner.getId());
         assertThat(itemResult, hasSize(2));
     }
 
