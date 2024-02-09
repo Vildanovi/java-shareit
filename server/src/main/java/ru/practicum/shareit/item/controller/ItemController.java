@@ -68,8 +68,8 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     @Operation(summary = "Обновление параметров вещи")
     public ItemResponseDto putItem(@PathVariable (value = "itemId") int itemId,
-                        @RequestHeader(Constants.USER_ID) int userId,
-                        @Validated(LastModifiedBy.class) @RequestBody ItemDto itemDto) {
+                                   @RequestHeader(Constants.USER_ID) int userId,
+                                   @Validated(LastModifiedBy.class) @RequestBody ItemDto itemDto) {
         log.debug("Обновляем вещь c id: {} для пользователя с id: {}", itemId, userId);
         Item item = ItemMapper.toItem(itemDto);
         return ItemMapper.itemResponseDto(itemService.putItem(itemId, userId, item));

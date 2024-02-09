@@ -10,7 +10,6 @@ import javax.validation.constraints.Size;
 @Data
 @Builder
 public class ItemDto {
-
     private int id;
     @NotEmpty(groups = {CreatedBy.class}, message = "Вещь не может быть без названия")
     @Size(groups = {CreatedBy.class}, max = 255, message = "Имя > 255 символов")

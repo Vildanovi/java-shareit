@@ -27,7 +27,7 @@ public class UserClient extends BaseClient {
     }
 
     public ResponseEntity<Object> createUser(UserRequestDto userDto) {
-        return post("", null, userDto);
+        return post("", userDto);
     }
 
     public ResponseEntity<Object> putUser(Integer id, UserRequestDto userDto) {
@@ -44,6 +44,6 @@ public class UserClient extends BaseClient {
     }
 
     public ResponseEntity<Object> deleteUserById(Integer userId) {
-        return delete("/{userId}", userId);
+        return delete("/{userId}", null, Map.of("userId", Integer.toString(userId)));
     }
 }

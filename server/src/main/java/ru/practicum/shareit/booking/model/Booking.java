@@ -36,7 +36,7 @@ public class Booking {
     @ManyToOne(fetch = FetchType.EAGER)
     private User booker; // пользователь, который осуществляет бронирование
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private BookingStatus status; // статус бронирования
 

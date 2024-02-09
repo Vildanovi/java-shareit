@@ -32,25 +32,20 @@ public class ItemClient extends BaseClient {
         return post("", userId, itemDto);
     }
 
-
     public ResponseEntity<Object> putItem(int itemId, int userId, ItemRequestDto itemDto) {
-        return patch("/{id}", userId, Map.of("id", itemId), itemDto);
+        return patch("/{itemId}", userId, Map.of("itemId", itemId), itemDto);
     }
 
-
     public ResponseEntity<Object> getItemById(int itemId, int userId) {
-        return get("/" + itemId, userId);
+        return get("/{itemId}", userId, Map.of("itemId", itemId));
     }
 
     public ResponseEntity<Object> getItemsWithBookingByUserId(int userId) {
         return get("", userId);
     }
 
-
     public ResponseEntity<Object> searchByText(String text) {
-        Map<String, Object> parameters = Map.of(
-                "text", text);
-        return get("/search?text={text}", null, parameters);
+        return get("/search?text={text}", null, Map.of("text", text));
     }
 
 

@@ -47,13 +47,13 @@ public class BookingController {
     }
 
     @GetMapping
-    public ResponseEntity<Object> getAllByUser(@RequestHeader("X-Sharer-User-Id") int userId,
-                                                 @RequestParam(name = "state", defaultValue = "all") String stateParam,
-                                                 @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
-                                                 @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
-        BookingState state = throwableIfStateInvalid(stateParam);
+    public ResponseEntity<Object> getAllByUser(@RequestParam(value = "state", defaultValue = "ALL") String state,
+                                               @RequestHeader("X-Sharer-User-Id") int userId,
+                                               @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero int from,
+                                               @RequestParam(value = "size", defaultValue = "10") @Positive int size) {
+        BookingState stateParam = throwableIfStateInvalid(state);
         log.info("Get bookings by booker with state {}, userId={}, from={}, size={}", stateParam, userId, from, size);
-        return bookingClient.getAllBookingByUser(userId, state, from, size);
+        return bookingClient.getAllBookingByUser(userId, stateParam, from, size);
     }
 
     @PatchMapping("/{bookingId}")
@@ -66,6 +66,6 @@ public class BookingController {
 
     private BookingState throwableIfStateInvalid(String stateParam) {
         return BookingState.from(stateParam)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
+                .orElseThrow(() -> new IllegalArgumentException("Unknown state: UNSUPPORTED_STATUS"));
     }
 }

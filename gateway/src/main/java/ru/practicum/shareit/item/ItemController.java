@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -29,14 +30,14 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ResponseEntity<Object> getItem(@PathVariable @Positive int itemId,
-                                              @RequestHeader("X-Sharer-User-Id") int userId) {
+    public ResponseEntity<Object> getItem(@PathVariable (value = "itemId") int itemId,
+                                          @RequestHeader("X-Sharer-User-Id") int userId) {
         log.debug("Получаем вещь с id: {} для пользовател: {}", itemId, userId);
         return itemClient.getItemById(itemId, userId);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Object> searchItems(@RequestParam String query) {
+    public ResponseEntity<Object> searchItems(@RequestParam (value = "text") String query) {
         log.debug("Ищем текст: {}", query);
         if (query.isBlank()) {
             return new ResponseEntity<>(Collections.EMPTY_LIST, HttpStatus.OK);
@@ -53,16 +54,16 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ResponseEntity<Object> putItem(@PathVariable @Positive int itemId,
-                                         @RequestHeader("X-Sharer-User-Id") int userId,
-                                         @RequestBody ItemRequestDto itemDto) {
-        log.info("Updating item {} with id: {}, from user with id: {}", itemDto, itemId, userId);
+                                          @RequestHeader("X-Sharer-User-Id") int userId,
+                                          @RequestBody ItemRequestDto itemDto) {
+        log.debug("Обновляем вещь c id: {} для пользователя с id: {}", itemId, userId);
         return itemClient.putItem(itemId, userId, itemDto);
     }
 
     @PostMapping("/{itemId}/comment")
-    public ResponseEntity<Object> postComment(@RequestHeader("X-Sharer-User-Id") int userId,
-                                             @PathVariable @Positive int itemId,
-                                             @RequestBody @Valid CommentRequestDto commentDto) {
+    public ResponseEntity<Object> postComment(@PathVariable(value = "itemId") int itemId,
+                                              @RequestHeader("X-Sharer-User-Id") int userId,
+                                              @Validated(CreatedBy.class) @RequestBody CommentRequestDto commentDto) {
         return itemClient.createComment(userId, itemId, commentDto);
     }
 }
