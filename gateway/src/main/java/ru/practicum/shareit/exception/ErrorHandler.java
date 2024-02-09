@@ -17,28 +17,28 @@ public class ErrorHandler {
             ConstraintViolationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handlerValidationException(RuntimeException exception) {
-        log.error("error со статусом 400 {}", exception.getMessage());
+        log.debug("error со статусом 400 {}", exception.getMessage());
         return new ErrorResponse(exception.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handlerNotFoundException(final EntityNotFoundException exception) {
-        log.error("error со статусом 404 {}", exception.getMessage());
+        log.debug("error со статусом 404 {}", exception.getMessage());
         return new ErrorResponse(exception.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handlerEntityUpdateException(final EntityUpdateException exception) {
-        log.error("Получен статус 409 Internal Server Error {}", exception.getMessage(), exception);
+        log.debug("Получен статус 409 Internal Server Error {}", exception.getMessage(), exception);
         return new ErrorResponse(exception.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handlerException(final Throwable exception) {
-        log.error("Получен статус 500 Internal Server Error {}", exception.getMessage(), exception);
+        log.debug("Получен статус 500 Internal Server Error {}", exception.getMessage(), exception);
         return new ErrorResponse(exception.getMessage());
     }
 }

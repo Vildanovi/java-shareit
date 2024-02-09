@@ -41,7 +41,7 @@ public class ItemService {
     public List<ItemResponseWithBookingDto> getItemsWithBookingByUserId(int userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Объект не найден: " + userId));
-        List<ItemResponseWithBookingDto> allItems = itemRepository.findAllByOwner_Id(userId)
+        List<ItemResponseWithBookingDto> allItems = itemRepository.findAllByOwner_IdOrderByIdAsc(userId)
                 .stream()
                 .map(ItemMapper::mapItemToResponseWithBooking)
                 .collect(toList());
