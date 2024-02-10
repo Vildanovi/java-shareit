@@ -322,7 +322,7 @@ public class ItemControllerIT {
         int ownerId = 1;
         when(itemService.createItem(anyInt(), any()))
                 .thenReturn(item);
-        itemDto.setDescription(null);
+        itemDto.setDescription("  ");
 
         mvc.perform(post("/items")
                         .contentType(MediaType.APPLICATION_JSON)

@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedBy;
+import ru.practicum.shareit.booking.valid.StartBeforeEndDateValid;
 
 import javax.validation.constraints.Future;
 import javax.validation.constraints.FutureOrPresent;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@StartBeforeEndDateValid
 public class BookItemRequestDto {
     @NotNull(groups = {CreatedBy.class}, message = "Бронирование не может быть без идентификатора вещи")
     private Integer itemId;

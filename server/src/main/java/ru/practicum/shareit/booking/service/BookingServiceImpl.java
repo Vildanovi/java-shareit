@@ -119,6 +119,8 @@ public class BookingServiceImpl implements BookingService {
     public List<Booking> getAllBookingByUser(int userId, String state, int from, int size) {
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
         Pageable page = PageRequest.of(from / size, size, sort);
+        Sort sortById = Sort.by(Sort.Direction.ASC, "id");
+        Pageable padeForId = PageRequest.of(from / size, size, sortById);
         BookingState bookingState;
         try {
             bookingState = BookingState.valueOf(state);
@@ -157,7 +159,7 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findAllByBooker_IdAndStartIsBeforeAndEndIsAfter(userId,
                         currentDateTime,
                         currentDateTime,
-                        page);
+                        padeForId);
                 break;
         }
         return bookings;
