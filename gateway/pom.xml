@@ -57,14 +57,10 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
-<!--        <dependency>-->
-<!--            <groupId>ru.practicum.shareit</groupId>-->
-<!--            <artifactId>server</artifactId>-->
-<!--            <version>0.0.1-SNAPSHOT</version>-->
-<!--            <classifier>original</classifier>-->
-<!--            <scope>compile</scope>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

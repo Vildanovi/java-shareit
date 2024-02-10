@@ -25,7 +25,7 @@ services:
       - DB_NAME=shareit
       - POSTGRES_USER=test
       - POSTGRES_PASSWORD=test
-#      - TZ=Europe/Moscow
+      - TZ=Europe/Moscow
 
   db:
     image: "postgres:13.7-alpine"

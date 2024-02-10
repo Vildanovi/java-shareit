@@ -22,20 +22,6 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handlerNotFoundException(final EntityNotFoundException exception) {
-        log.debug("error со статусом 404 {}", exception.getMessage());
-        return new ErrorResponse(exception.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handlerEntityUpdateException(final EntityUpdateException exception) {
-        log.debug("Получен статус 409 Internal Server Error {}", exception.getMessage(), exception);
-        return new ErrorResponse(exception.getMessage());
-    }
-
-    @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handlerException(final Throwable exception) {
         log.debug("Получен статус 500 Internal Server Error {}", exception.getMessage(), exception);

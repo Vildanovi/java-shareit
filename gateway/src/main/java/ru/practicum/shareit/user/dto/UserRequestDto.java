@@ -28,5 +28,7 @@ public class UserRequestDto {
             message = "Email не может быть пустым")
     @Email(groups = {CreatedBy.class, LastModifiedBy.class},
             message = "Некорректный email")
+    @Size(groups = {CreatedBy.class, LastModifiedBy.class}, max = 50,
+            message = "Email адрес > 50 символов")
     private String email;
 }
